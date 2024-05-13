@@ -1,7 +1,0 @@
-#
-#   Genyris(제니리스): Hello, World! 예제
-#
-
-@prefix u "http://www.genyris.org/lang/utilities#"
-
-u:format "Hello, World!\n"

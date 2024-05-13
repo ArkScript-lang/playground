@@ -1,6 +1,0 @@
-#
-#   Blue: Hello, World!
-#   https://github.com/elechak/blue
-#
-
-sys.print("Hello, World!\n");

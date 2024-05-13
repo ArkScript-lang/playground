@@ -1,6 +1,0 @@
-#
-#   Berry: Hello, World!
-#   https://github.com/berry-lang/berry
-#
-
-print("Hello, World!")

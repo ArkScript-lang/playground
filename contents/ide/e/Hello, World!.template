@@ -1,5 +1,0 @@
-#
-# E 언어: Hello, World! 예제
-#
-
-stdout.println("Hello, World!")

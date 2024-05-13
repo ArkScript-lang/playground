@@ -1,6 +1,0 @@
-;
-;   World: Hello, World!
-;   https://github.com/Geomol/World
-;
-
-print("Hello, World!")

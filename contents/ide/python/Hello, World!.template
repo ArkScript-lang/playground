@@ -1,5 +1,0 @@
-# Python(파이썬) Hello, World! 예제
-
-str = "Hello, World!"
-
-print(str)

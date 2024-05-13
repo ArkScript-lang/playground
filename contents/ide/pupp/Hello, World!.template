@@ -1,6 +1,0 @@
-//
-//   Pup: Hello, World!
-//   https://github.com/marxn/pupp
-//
-
-print "Hello, World!", NL;

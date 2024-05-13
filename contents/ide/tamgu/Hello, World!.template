@@ -1,6 +1,0 @@
-/@
-    Tamgu: Hello, World!
-    https://github.com/naver/tamgu
-@/
-
-println("Hello, World!");

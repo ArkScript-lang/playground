@@ -1,6 +1,0 @@
-;
-;   Bone Lisp: Hello, World!
-;   https://github.com/wolfgangj/bone-lisp
-;
-
-(say "Hello, World!\n")

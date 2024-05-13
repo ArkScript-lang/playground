@@ -1,8 +1,0 @@
-\
-\   8th: Hello, World
-\   https://8th-dev.com/
-\
-
-"Hello, World!" . cr
-
-bye

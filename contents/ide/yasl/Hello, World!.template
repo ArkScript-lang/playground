@@ -1,6 +1,0 @@
-#
-#   YASL: Hello, World!
-#   https://github.com/yasl-lang/yasl
-#
-
-echo 'Hello, World!'

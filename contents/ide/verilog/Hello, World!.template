@@ -1,8 +1,0 @@
-// Verilog(베릴로그) Hello, World! 예제
-
-module main;
-  initial begin
-      $display("Hello, World!");
-      $finish;
-    end
-endmodule

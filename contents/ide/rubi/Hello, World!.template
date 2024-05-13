@@ -1,6 +1,0 @@
-#
-#   Rubi: Hello, World!
-#   https://github.com/sysprog21/rubi
-#
-
-puts "Hello, World!"

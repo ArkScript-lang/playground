@@ -1,6 +1,0 @@
-//
-//  Dino: Hello, World!
-//  https://github.com/dino-lang/dino
-//
-
-putln ("Hello, World!");

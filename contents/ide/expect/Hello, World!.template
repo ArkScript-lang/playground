@@ -1,5 +1,0 @@
-#
-#   Expect: Hello, World!
-#
-
-send "Hello, World!\n"

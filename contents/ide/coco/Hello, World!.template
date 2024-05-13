@@ -1,7 +1,0 @@
-#
-#   Coco(코코) Hello, World 예제
-#
-
-str = "Hello, World!"
-
-console.log(str)

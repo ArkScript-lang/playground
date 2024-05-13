@@ -1,6 +1,0 @@
-;
-;   Arc: Hello, World
-;   https://github.com/kimtg/arcadia
-;
-
-(prn "Hello, World!")

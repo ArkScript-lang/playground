@@ -1,6 +1,0 @@
-#!/usr/bin/awk
-# Awk Hello, World!
-
-BEGIN {
-    print "Hello, World!"
-}

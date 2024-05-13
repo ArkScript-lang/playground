@@ -1,8 +1,0 @@
-/* Fantom(팬텀) Hello, World! 예제 */
-
-class Main
-{
-    static Void main() { 
-        echo("Hello, World!")
-    }
-}

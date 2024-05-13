@@ -1,6 +1,0 @@
-//
-//  Lox: Hello, World!
-//  https://github.com/benhoyt/loxlox
-//
-
-print "Hello, World!";

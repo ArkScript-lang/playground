@@ -1,6 +1,0 @@
-#!/usr/bin/mythryl
-#   Mythryl: Hello, World!
-#
-
-fun hello () = print "Hello, World!\n";
-hello ();

@@ -1,6 +1,0 @@
-//
-//  Gluon(글루온): Hello, World! 예제
-//
-
-let io = import! std.io
-io.println "Hello, World!"

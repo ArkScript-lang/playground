@@ -1,6 +1,0 @@
-/*
-    Blossom: Hello, World!
-    https://github.com/cstanze/blossom
-*/
-
-println("Hello, World!");

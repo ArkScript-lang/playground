@@ -1,5 +1,0 @@
-declare function puts(message: i8*): i32;
-
-export function main(): void {
-    puts("Hello, World!");
-}

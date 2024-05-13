@@ -1,5 +1,0 @@
-/*
-    Yorick(요릭) Hello, World! 예제
-*/
-
-write, "Hello, World!";

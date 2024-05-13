@@ -1,8 +1,0 @@
-comment
-    Algol W: Hello, World!
-    https://tiddly-pom.com/~glyn/
-;
-
-begin
-    write( "Hello, World!" )
-end.

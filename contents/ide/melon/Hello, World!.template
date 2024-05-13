@@ -1,6 +1,0 @@
-/*
-    Melon: Hello, World!
-    https://github.com/Water-Melon/Melon
-*/
-
-io.print("Hello, World!");

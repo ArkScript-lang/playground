@@ -1,9 +1,0 @@
-from "io" {
-    @void println;
-};
-
-func @int main(@int argc, @stringp argv) {
-    @string hello = "Hello, World!";
-    println(hello);
-    return 0;
-};

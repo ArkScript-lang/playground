@@ -1,5 +1,0 @@
-/*
-	Maxima(맥시마) Hello, World! 예제
-*/
-
-print("Hello, World!");

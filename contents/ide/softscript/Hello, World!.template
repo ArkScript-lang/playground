@@ -1,7 +1,0 @@
-{
-    ;"
-        SoftScript: Hello, World!
-        https://github.com/been-jamming/SoftScript
-    ";
-    print("Hello, World!");
-}()

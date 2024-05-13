@@ -1,6 +1,0 @@
-#
-#   Knight: Hello, World!
-#   https://github.com/sampersand/knight
-#
-
-: OUTPUT + "Hello," " World!"

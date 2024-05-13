@@ -1,6 +1,0 @@
-//
-//  OpenSCAD: Hello, World!
-//
-
-linear_extrude(4)
-    text("Hello, World!");

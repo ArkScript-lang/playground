@@ -1,8 +1,0 @@
-//
-//  Flix: Hello, World!
-//  https://github.com/flix
-//
-
-def main(_args: Array[String]): Int32 & Impure =
-    println("Hello, World!");
-    0

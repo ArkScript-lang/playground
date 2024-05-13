@@ -1,8 +1,0 @@
-"
-    Pharo: Hello, World!!
-"
-
-
-Transcript show: 'Hello, World!!'; cr.
-
-Smalltalk snapshot: false andQuit: true.

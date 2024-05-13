@@ -1,4 +1,0 @@
-' Yabasic(야베이식) Hello, World! 예제
-
-10 PRINT "Hello, World!"
-20 END

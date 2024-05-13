@@ -1,3 +1,0 @@
-/* Scala3(스칼라3) Hello, World! 예제 */
-
-@main def hello = println("Hello, World!")

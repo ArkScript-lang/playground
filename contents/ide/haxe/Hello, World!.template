@@ -1,9 +1,0 @@
-/**
-    Haxe(핵스): Hello, World! 예제
-**/
-
-class Main {
-    static public function main():Void {
-        trace("Hello, World!");
-    }
-}

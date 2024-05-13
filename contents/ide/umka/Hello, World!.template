@@ -1,8 +1,0 @@
-//
-//  Umka: Hello, World!
-//  https://github.com/vtereshkov/umka-lang
-//
-
-fn main() {
-    printf("Hello, World!\n")
-}

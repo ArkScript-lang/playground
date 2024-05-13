@@ -1,6 +1,0 @@
-REM
-REM   TerminalBasic: Hello, World!
-REM
-
-PRINT "Hello, World!"
-END

@@ -1,6 +1,0 @@
-#
-#   SZL: Hello, World!
-#   https://github.com/dimkr/szl
-#
-
-$puts {Hello, World!}

@@ -1,8 +1,0 @@
-#
-#   Kos: Hello, World!
-#   https://github.com/kos-lang/kos
-#
-
-import base.print
-
-print("Hello, World!")

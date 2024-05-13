@@ -1,9 +1,0 @@
-/*
-    Jancy: Hello, World!
-    https://github.com/vovkos/jancy
-*/
-
-int main() {
-	printf("Hello, World!\n");
-	return 0;
-}

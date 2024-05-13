@@ -1,9 +1,0 @@
-;
-;   Stanza: Hello, World!
-;   http://lbstanza.org/
-;
-
-defpackage main:
-    import core
-  
-println("Hello, World!")

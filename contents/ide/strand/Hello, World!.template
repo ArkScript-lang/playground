@@ -1,5 +1,0 @@
-%
-%   Strand: Hello, World!
-%
-
-main :- writeln('Hello, World!').

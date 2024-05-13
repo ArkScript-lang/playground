@@ -1,6 +1,0 @@
-#
-#   DuckScript: Hello, World!
-#   https://github.com/sagiegurari/duckscript
-#
-
-!print Hello, World!

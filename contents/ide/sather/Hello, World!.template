@@ -1,9 +1,0 @@
---
---  Sather(새더): Hello, World! 예제
---
-
-class MAIN is
-    main is
-        #OUT + "Hello, World!\n";
-    end;
-end;

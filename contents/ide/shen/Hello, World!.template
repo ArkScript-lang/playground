@@ -1,6 +1,0 @@
-;;
-;;  Shen: Hello, World!
-;;  http://shenlanguage.org/
-;;
-
-(pr "Hello, World!")(nl)

@@ -1,6 +1,0 @@
-@
-@   EGA: Hello, World!
-@   https://github.com/katahiromz/EGA
-@
-
-println("Hello, World!")

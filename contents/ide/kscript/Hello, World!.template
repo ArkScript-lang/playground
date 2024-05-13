@@ -1,6 +1,0 @@
-#
-#   kscript: Hello, World!
-#   https://github.com/ChemicalDevelopment/kscript
-#
-
-print("Hello, World!")

@@ -1,6 +1,0 @@
-!
-!   Hope: Hello, World!
-!   https://github.com/dmbaturin/hope
-!
-
-write "Hello, World!\n";

@@ -1,5 +1,0 @@
-;
-;   Ioke(아이오케): Hello, World! 예제
-;
-
-"Hello, World!" println

@@ -1,6 +1,0 @@
-#
-#   Seq: Hello, World!
-#   https://seq-lang.org/
-#
-
-print("Hello, World!")

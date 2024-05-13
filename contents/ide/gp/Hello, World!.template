@@ -1,5 +1,0 @@
-\\ PARI/GP Hello, Worl! 예제
-
-print("Hello, World!")
-
-quit()

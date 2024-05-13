@@ -1,5 +1,0 @@
---  Oracle: Hello, World!
-
-SELECT 'Hello, World!'
-  FROM DUAL
-;

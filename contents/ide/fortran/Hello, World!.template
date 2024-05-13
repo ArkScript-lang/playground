@@ -1,7 +1,0 @@
-!
-!   Fortran(포트란): Hello, World! 예제
-!
-
-program hello
-    print *, 'Hello, World!'
-end program hello

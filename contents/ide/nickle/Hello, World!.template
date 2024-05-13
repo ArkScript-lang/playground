@@ -1,5 +1,0 @@
-/*
-    Nicle(니클): Hello, World! 예제
-*/
-
-printf("Hello, World!\n");

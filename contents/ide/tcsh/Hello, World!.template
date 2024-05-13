@@ -1,6 +1,0 @@
-#!/usr/bin/tcsh
-# Tcsh 스크립트 Hello, World! 예제
-
-set hello = "Hello, World!"
-
-echo $hello

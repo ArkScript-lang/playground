@@ -1,9 +1,0 @@
-#
-#   Zimbu: Hello, World!
-#   http://www.zimbu.org
-#
-
-FUNC MAIN() int
-    IO.writeLine("Hello, World!")
-    RETURN 0
-}

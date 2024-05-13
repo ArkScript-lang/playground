@@ -1,5 +1,0 @@
-//
-//  Wren(렌): Hello, World! 예제
-//
-
-System.print("Hello, World!")

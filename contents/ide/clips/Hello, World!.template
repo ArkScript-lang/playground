@@ -1,6 +1,0 @@
-;
-;   Clips: Hello, World!
-;
-
-(print "Hello, World!" crlf)
-(exit)

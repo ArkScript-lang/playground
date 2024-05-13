@@ -1,8 +1,0 @@
-/*
-    Virgil: Hello, World!
-    https://github.com/titzer/virgil
-*/
-
-def main() {
-    System.puts("Hello, World!\n");
-}

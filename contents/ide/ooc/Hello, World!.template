@@ -1,7 +1,0 @@
-//
-//  ooc: Hello, World! 예제
-//
-
-main: func {
-    "Hello, World!" println()
-}

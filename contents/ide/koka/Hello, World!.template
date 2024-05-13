@@ -1,9 +1,0 @@
-//
-//  Koka: Hello, World!
-//
-
-module hello
-
-public fun main() {
-    println("Hello, World!")
-}

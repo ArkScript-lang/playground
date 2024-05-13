@@ -1,5 +1,0 @@
-||
-||  Miranda: Hello, World
-||
-
-main = [Stdout "Hello, World!\n"]

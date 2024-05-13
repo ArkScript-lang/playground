@@ -1,4 +1,0 @@
-#-*- coding: utf-8 -*-
-# Jython(자이썬) Hello, World! 예제
-
-print("Hello, World")

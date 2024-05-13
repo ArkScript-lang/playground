@@ -1,5 +1,0 @@
-#
-#   Ursa(우르사): Hello, World! 예제
-#
- 
-out "Hello, World!" endl console

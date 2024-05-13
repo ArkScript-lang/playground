@@ -1132,8 +1132,8 @@ export default {
       term.clear()
       term.write(this.$t('connectToServer'))
 
-      //const ws = new WebSocket(`wss://${window.location.host}/terminal`)
-      const ws = new WebSocket(`wss://www.ryugod.com/terminal`)
+      const ws = new WebSocket(`ws://localhost:8081/terminal`)
+      //const ws = new WebSocket(`wss://www.ryugod.com/terminal`)
 
       ws.onopen = () => {
         term.write(this.$t('connected'))

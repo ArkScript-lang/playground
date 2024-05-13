@@ -1,6 +1,0 @@
-/*
-    Bob: Hello, World!
-    https://github.com/dbetz/bob
-*/
-
-stdout.Display("Hello, World!\n");

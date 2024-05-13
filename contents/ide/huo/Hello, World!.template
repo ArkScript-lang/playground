@@ -1,6 +1,0 @@
-;
-;   Huo: Hello, World!
-;   https://github.com/HuoLanguage/huo
-;
-
-(print "Hello, World!")

@@ -1,6 +1,0 @@
-/*
-    Boron: Hello, World!
-    http://urlan.sourceforge.net/boron
-*/
-
-print "Hello, World!"

@@ -1,5 +1,0 @@
-;
-;   ELisp(이맥스리스프): Hello, World! 예제
-;
-
-(princ "Hello, World!\n")

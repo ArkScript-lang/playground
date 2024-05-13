@@ -1,6 +1,0 @@
-%
-%   Picat(파이캣): Hello, World! 예제
-%
-
-main =>
-    printf("Hello, World!\n").

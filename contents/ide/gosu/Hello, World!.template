@@ -1,7 +1,0 @@
-/*
-    Gosu(고수) Hello, World
-*/
-
-var hello = "Hello, World!"
-
-print("${hello}")

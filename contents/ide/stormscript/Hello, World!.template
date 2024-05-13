@@ -1,6 +1,0 @@
-#
-#   StormScript: Hello, World!
-#   https://github.com/stormprograms/StormScript
-#
-
-printl "Hello, World!";

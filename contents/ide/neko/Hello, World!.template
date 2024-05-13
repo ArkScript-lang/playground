@@ -1,5 +1,0 @@
-/*
-    Neko(네코): Hello, World 예제
-*/
- 
-$print("Hello, World!\n");

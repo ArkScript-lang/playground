@@ -1,5 +1,0 @@
-;
-;   Arturo(아르뚜로): Hello, World!
-;
-
-print ["Hello, World!"]

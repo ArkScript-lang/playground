@@ -1,8 +1,0 @@
-!
-    Simula(시뮬라): Hello, World 예제
-;
-
-Begin
-   OutText ("Hello, World!");
-   Outimage;
-End;

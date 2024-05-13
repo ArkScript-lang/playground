@@ -1,6 +1,0 @@
-//
-//  Slogan: Hello, World!
-//  https://github.com/vijaymathew/slogan
-//
-
-showln("Hello, World!")

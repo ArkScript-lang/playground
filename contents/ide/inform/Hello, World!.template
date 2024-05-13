@@ -1,7 +1,0 @@
-!
-!   Inform: Hello, World!
-!
-
-[ Main;
-    print "Hello, World!";
-];

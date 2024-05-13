@@ -1,6 +1,0 @@
-;
-;   PicoLisp: Hello, World!
-;
-
-(println "Hello, World!")
-(bye)

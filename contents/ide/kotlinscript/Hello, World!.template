@@ -1,6 +1,0 @@
-/*
-    Kotlin Script: Hello, World!
-    https://kotlinlang.org/
-*/
-
-println("Hello, World!")

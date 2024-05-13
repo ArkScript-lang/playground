@@ -1,6 +1,0 @@
---
---  Orc(오크): Hello, World! 예제
---
-
-Println("Hello, World!") >>
-stop

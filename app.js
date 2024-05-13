@@ -13,8 +13,9 @@ const fs = require('fs')
 const { SIGTERM, SIGQUIT, SIGINT, SIGKILL } = require('constants')
 const app = express()
 app.disable('x-powered-by')
-const base_dir = '/home/ryugod'
-const port = 5000
+const path = require('path')
+const base_dir = path.join(path.dirname(fs.realpathSync(__filename)), 'ryugod')
+const port = 8081
 const md = require('markdown-it')({
     highlight: (str, lang) => {
     if (lang && hljs.getLanguage(lang)) {
@@ -274,7 +275,7 @@ websocketServer.on('connection', (ws, req) => {
     var locale = (lang && lang.split(',')[0].indexOf("ko") >= 0)?'ko_KR':'C'
     console.log(new Date().toString(), 'connected...', ip, docker_name, lang)
 
-    const child = pty.spawn('/usr/bin/docker', [
+    const child = pty.spawn('docker', [
         'run',
         '--env',
         `LANG=${locale}.UTF-8`,
@@ -286,14 +287,14 @@ websocketServer.on('connection', (ws, req) => {
         '--name',
         docker_name,
         '--rm',
-        '--workdir',
-        '/home/ryugod',
-        '--user',
-        'ryugod',
-        '--hostname',
-        'ryugod-server',
-        'ubuntu:ryugod',
-        '/bin/bash'
+        '--entrypoint=/bin/sh',
+        //'--workdir',
+        //'/home/ryugod',
+        //'--user',
+        //'ryugod',
+        //'--hostname',
+        //'ryugod-server',
+        'arkscript/nightly',
     ], {
         name: 'xterm-color',
     })
@@ -309,17 +310,20 @@ websocketServer.on('connection', (ws, req) => {
         console.log('child closed', docker_name, child.pid, code)
     })
 
-    ws.on('message', (message) => {
-        const cmd = message[0]
+    ws.on('message', (message, isBinary) => {
+        const decoded = !isBinary ? message.toString() : message
+        console.log(decoded)
+        const cmd = decoded[0]
         switch (cmd) {
         case '1':
             if (message) {
-                const msg = message.slice(1)
+                const msg = decoded.slice(1)
+                console.log('message 1: ', msg)
                 child.write(msg)
             }
             break
         case '2': /* resize */
-            const size = message.split(' ')
+            const size = decoded.split(' ')
             child.resize(parseInt(size[1]), parseInt(size[2]))
             break
         }

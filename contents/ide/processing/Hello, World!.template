@@ -1,7 +1,0 @@
-/*
-    Processing(프로세싱) Hello, World! 예제
-*/
-
-print("Hello, World!\n");
-
-exit();

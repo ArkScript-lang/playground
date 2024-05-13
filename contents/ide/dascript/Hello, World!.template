@@ -1,9 +1,0 @@
-/*
-    daScript: Hello, World!
-    https://github.com/GaijinEntertainment/daScript
-*/
-
-[export]
-def main
-    print("Hello, World!\n")
-    return

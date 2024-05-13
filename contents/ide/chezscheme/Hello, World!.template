@@ -1,5 +1,0 @@
-; Scheme(스킴) Hello, World! 예제
-
-(begin
-    (display "Hello, World!")
-    (newline))

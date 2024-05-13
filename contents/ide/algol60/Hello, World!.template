@@ -1,6 +1,0 @@
-'begin'
-    'comment'
-        Algol60: Hello, World!
-    ;
-    outstring (1, "Hello, World!\n")
-'end'

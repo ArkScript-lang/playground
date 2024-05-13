@@ -1,6 +1,0 @@
-/*
-    ICI: Hello, World!
-    https://github.com/ici-language/ici
-*/
-
-printf("Hello, World!\n");

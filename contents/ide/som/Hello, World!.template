@@ -1,8 +1,0 @@
-"
-    SOM: Hello, World!
-    http://som-st.github.io/
-"
-
-main = (
-    run = ('Hello, World!' println)  
-)

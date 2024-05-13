@@ -1,5 +1,0 @@
-//
-//  Chapel: Hello, World!
-//
-
-writeln("Hello, World!");
