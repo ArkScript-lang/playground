@@ -8,11 +8,7 @@ module.exports = {
     overlay: false,
     proxy: {
       '/contents': {
-        target: 'http://localhost:8081',
-        changeOrigin: true
-      },
-      '/shareMySource': {
-        target: 'http://localhost:8081',
+        target: 'http://host.docker.internal:8081',
         changeOrigin: true
       }
     }

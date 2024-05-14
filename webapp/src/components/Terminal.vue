@@ -172,14 +172,6 @@
           </template>
         </v-tooltip>
         <v-tooltip bottom>
-          <span>{{ $t("shareSource") }}</span>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn text x-small @click="shareSource()" v-bind="attrs" v-on="on">
-              <v-icon dense>mdi-share-variant-outline</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-        <v-tooltip bottom>
           <span>{{ $t("import") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn text x-small @click="importFile()" v-bind="attrs" v-on="on">
@@ -387,12 +379,6 @@
         </v-tab-item>
       </v-tabs-items>
     </div>
-    <ShowMessage ref="nosource" :title="$t('shareSource')">{{
-      $t("run")
-    }}</ShowMessage>
-    <ShowMessage ref="shared" :title="$t('shareSource')">
-      <a :href="sharedURL"><v-img :src="QRCode"></v-img></a>
-    </ShowMessage>
     <v-menu v-model="tabMenu" :position-x="x" :position-y="y" absolute offset-y>
       <v-list dense>
         <v-list-item
@@ -428,16 +414,13 @@ import * as monaco from "monaco-editor";
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { languages } from "./languages.js";
-import qrcode from "qrcode";
 import axios from "axios";
-import ShowMessage from "./ShowMessage";
 import Settings from "./Settings";
 
 export default {
   name: "Terminal",
 
   components: {
-    ShowMessage,
     Settings,
   },
   props: {
@@ -1054,44 +1037,6 @@ export default {
       if (this.befHeight !== 0) this.befHeight = monaco.style.height;
       this.fitSize();
     },
-    shareSource: function () {
-      const source = this.editor.getValue().trim();
-      if (source === "") {
-        this.messageBox("nosource", 320);
-        return;
-      }
-
-      axios
-        .post(`/shareMySource`, {
-          params: {
-            source: source,
-            language: this.languages[this.selectedLanguage].template,
-          },
-        })
-        .then((res) => {
-          this.sharedHash = res.data;
-
-          if (this.sharedHash !== "") {
-            this.sharedURL = `${window.location.protocol}//${
-              window.location.host
-            }/pages/shared/${this.languages[this.selectedLanguage].template}/${
-              this.sharedHash
-            }.template`;
-            this.copyToClipboard(this.sharedURL);
-            this.messageBox("shared", 400);
-            qrcode.toDataURL(this.sharedURL, (err, url) => {
-              this.QRCode = url;
-            });
-          } else {
-            this.showSnackbar("소스 공유에 실패했습니다");
-            console.error("sharedHash is null");
-          }
-        })
-        .catch((e) => {
-          this.showSnackbar("소스 공유에 실패했습니다");
-          console.error(e);
-        });
-    },
     openSite: function (site) {
       window.open(site, "_blank");
     },
@@ -1692,14 +1637,6 @@ export default {
       label: this.$t("saveOptions"),
       run: () => {
         this.saveOptions();
-      },
-    });
-
-    this.editor.addAction({
-      id: "shareSource",
-      label: this.$t("shareSource"),
-      run: () => {
-        this.shareSource();
       },
     });
 

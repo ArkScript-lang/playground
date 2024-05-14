@@ -44,7 +44,6 @@ export var language = {
         'import',
         'let',
         'mut',
-        'quote',
         'set',
         'while',
     ],

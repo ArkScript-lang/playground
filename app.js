@@ -10,11 +10,7 @@ const websocket = require('ws')
 const hljs = require('highlight.js')
 const urlencode = require('urlencode')
 const fs = require('fs')
-const app = express()
-app.disable('x-powered-by')
 const path = require('path')
-const base_dir = path.join(path.dirname(fs.realpathSync(__filename)), 'webapp')
-const port = 8081
 const md = require('markdown-it')({
     highlight: (str, lang) => {
         if (lang && hljs.getLanguage(lang)) {
@@ -30,6 +26,11 @@ const md = require('markdown-it')({
 })
 const mdi = require('markdown-it-mdi')
 
+const app = express()
+app.disable('x-powered-by')
+const base_dir = path.join(path.dirname(fs.realpathSync(__filename)))
+const port = 8081
+
 let dockerCount = 0
 
 md.use(mdi)
@@ -42,6 +43,8 @@ app.use('/list', serveIndex(base_dir + '/contents'))
 const sendStatic = (req, res) => {
     url = urlencode.decode(req.url)
     const path = base_dir + url
+
+    console.log('sendstatic', path)
 
     if (fs.existsSync(path)) {
         fs.readFile(path, function (err, data) {
@@ -66,38 +69,19 @@ app.post('/', (req, res) => {
     res.sendFile(path)
 })
 
-app.post('/shareMySource', (req, res) => {
-    const base_path = `${base_dir}/contents/shared/${req.body.params.language}`
-
-    if (!fs.existsSync(base_path))
-        fs.mkdirSync(base_path)
-
-    let h = hash()
-    let path = `${base_path}/${h}.template`
-
-    while (fs.existsSync(path)) {
-        console.log(`hash collision ${h}, recreating...`)
-        h = hash()
-        path = `${base_path}/${h}.template`
-    }
-
-    fs.writeFile(path, req.body.params.source, function (err) {
-        if (err) {
-            return res.send('')
-        }
-        res.send(h)
-        console.log(`created shared source ${path}...`)
-    });
-})
-
 app.get('/pages/?**', (req, res) => {
+    console.log(req.url)
+
     const path = base_dir + '/public/index.html'
     res.sendFile(path)
 })
 
 app.get('/list/*\.(md|template|png)$', (req, res) => {
+    console.log('/list', req.url)
+
     const url = urlencode.decode(req.url).replace('/list/', '/contents/')
     const path = base_dir + url
+    console.log(path)
 
     if (fs.existsSync(path, { encoding: 'utf-8' })) {
         res.sendFile(path)
@@ -108,8 +92,11 @@ app.get('/list/*\.(md|template|png)$', (req, res) => {
 })
 
 app.get('/contents/*\.(template)$', (req, res) => {
+    console.log('/contents', req.url)
+
     const url = urlencode.decode(req.url)
     const path = base_dir + url
+    console.log(path)
 
     if (fs.existsSync(path, { encoding: 'utf-8' })) {
         res.sendFile(path)
@@ -120,12 +107,17 @@ app.get('/contents/*\.(template)$', (req, res) => {
 })
 
 app.get('*\.(png|js)$', (req, res) => {
+    console.log(req.url)
+
     sendStatic(req, res)
 })
 
 app.get('*\.(md|md.html|template|template.html)$', (req, res) => {
+    console.log('/*', req.url)
+
     const url = urlencode.decode(req.url).replace(/\.html$/, '')
     const path = base_dir + url
+    console.log(path)
 
     if (fs.existsSync(path, { encoding: 'utf-8' })) {
         stats = fs.statSync(path)
@@ -153,51 +145,14 @@ app.get('*\.(md|md.html|template|template.html)$', (req, res) => {
 })
 
 app.get('*\.(html|jsls)$', (req, res) => {
+    console.log(req.url)
+
     sendStatic(req, res)
 })
 
-app.get('/sitemap.xml', (req, res) => {
-    const path = base_dir + '/contents'
-    const file_list = []
-
-    readdir = (path, file_list) => {
-        if (fs.existsSync(path, { encoding: 'utf-8' })) {
-            stats = fs.lstatSync(path)
-            const files = fs.readdirSync(path, { encoding: 'utf-8' })
-
-            files.sort()
-
-            for (file of files) {
-                const fpath = path + '/' + file
-
-                if (fs.existsSync(fpath, { encoding: 'utf-8' })) {
-                    stats = fs.lstatSync(fpath)
-                    if (stats.isDirectory()) {
-                        readdir(path + '/' + file, file_list)
-                        continue
-                    }
-
-                    if (file.slice(-3) === '.png')
-                        continue
-
-                    file_list.push(`<url><loc>https://www.ryugod.com${fpath.replace(base_dir, '').replace(/\/contents\//, '/pages/')}</loc>` +
-                        `<lastmod>${stats.mtime.toISOString()}</lastmod></url>`)
-                }
-            }
-        }
-    }
-
-    readdir(path, file_list)
-
-    const html = '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-        file_list.join('\n') +
-        '</urlset>\n'
-
-    res.send(html)
-})
-
 app.get('/contents/?**', (req, res) => {
+    console.log(req.url)
+
     const url = urlencode.decode(req.url)
     const path = base_dir + url
     var ret = {}
@@ -316,7 +271,6 @@ websocketServer.on('connection', (ws, req) => {
             case '1':
                 if (message) {
                     const msg = decoded.slice(1)
-                    console.log('message 1: ', msg)
                     child.write(msg)
                 }
                 break
