@@ -652,9 +652,9 @@ export default {
     optionControl: function (flag) {
       try {
         const db = window.openDatabase(
-          "ryugod",
+          "playground",
           "1.0",
-          "RyuGod Database",
+          "Database",
           16 * 1024 * 1024
         );
 
@@ -769,9 +769,9 @@ export default {
     sourceControl: function (flag, language, newFileName) {
       try {
         const db = window.openDatabase(
-          "ryugod",
+          "playground",
           "1.0",
-          "RyuGod Database",
+          "Database",
           16 * 1024 * 1024
         );
 
@@ -921,9 +921,9 @@ export default {
         if (this.connected) {
           this.ws.send(
             `1\n# ℹ️  ${file.name} 파일을 전송합니다(${file.size}bytes). 완료될 때까지 기다려 주세요...\n` +
-              `cat << 'RYUGOD_EOF' | sed s/.*,// | base64 -d > '${file.name}'\n` +
+              `cat << 'ARKSCRIPT_EOF' | sed s/.*,// | base64 -d > '${file.name}'\n` +
               event.target.result +
-              `\nRYUGOD_EOF\r\n# ℹ️  ${file.name} 전송완료\n`
+              `\nARKSCRIPT_EOF\r\n# ℹ️  ${file.name} 전송완료\n`
           );
         }
       };
@@ -1203,8 +1203,8 @@ export default {
         if (typeof callback === "function") callback();
       };
 
-      const HEREDOC_BEGIN = "cat << 'RYUGOD_EOF'";
-      const regex = /RYUGOD_EOF(?!')/;
+      const HEREDOC_BEGIN = "cat << 'ARKSCRIPT_EOF'";
+      const regex = /ARKSCRIPT_EOF(?!')/;
       let isHereDoc = false;
 
       ws.onmessage = (d) => {
@@ -1336,7 +1336,7 @@ export default {
               : "";
 
           command = (
-            "cat << 'RYUGOD_EOF' > {FILENAME}.{EXT}\n{SOURCE}\nRYUGOD_EOF\nhistory -c\n" +
+            "cat << 'ARKSCRIPT_EOF' > {FILENAME}.{EXT}\n{SOURCE}\nARKSCRIPT_EOF\nhistory -c\n" +
             this.languages[this.selectedLanguage].command
           )
             .replace(/{ARGS}/g, args)
@@ -1427,16 +1427,8 @@ export default {
       this.selectedLanguage = language;
       this.filename = this.defaultFilename;
       this.befFileTab = this.defaultFilename;
-      document.title = `RyuGod - ${language}`;
-      document
-        .querySelector('meta[name="description"]')
-        .setAttribute(
-          "content",
-          `온라인 ${language} 실행 환경 (Online ${language} Test and Run with IDE)`
-        );
       this.editor.setScrollLeft(0);
       this.editor.setScrollTop(0);
-      //      this.sourceControl(false, language)
       this.removeImages();
       monaco.editor.setModelLanguage(
         this.editor.getModel(),

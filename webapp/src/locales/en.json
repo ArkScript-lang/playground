@@ -1,6 +1,6 @@
 {
-  "app-title": "RyuGod",
-  "ryugod": "A developer with a gat to wear",
+  "app-title": "ArkScript playground",
+  "about": "Online IDE playground to run ArkScript code",
   "toggleTheme": "Toggle theme",
   "connect": "Connect",
   "disconnect": "Disconnect",

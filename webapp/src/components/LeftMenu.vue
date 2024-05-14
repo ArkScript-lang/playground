@@ -10,7 +10,7 @@
             $t("app-title")
           }}</v-list-item-title>
           <v-list-item-subtitle @click="aboutMsg()">{{
-            $t("ryugod")
+            $t("about")
           }}</v-list-item-subtitle>
         </v-list-item-content>
       </v-list-item>
@@ -80,7 +80,7 @@
       </v-list>
     </div>
     <div>
-      <ShowMessage ref="about" title="About ryugod.com"
+      <ShowMessage ref="about" title="About"
         ><div class="markdown-body" v-html="contents"></div
       ></ShowMessage>
     </div>

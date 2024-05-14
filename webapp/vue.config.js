@@ -8,11 +8,11 @@ module.exports = {
     overlay: false,
     proxy: {
       '/contents': {
-        target: 'http://ryugod.com:5000',
+        target: 'http://localhost:8081',
         changeOrigin: true
       },
       '/shareMySource': {
-        target: 'http://ryugod.com:5000',
+        target: 'http://localhost:8081',
         changeOrigin: true
       }
     }

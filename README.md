@@ -28,7 +28,7 @@ const tag = `<a href="${url}">🚀 Test your code</a>`
 
 Build and run the webapp:
 ```shell
-docker build -t webapp ryugod
+docker build -t webapp webapp
 docker run -it --rm -p 8080:8080 webapp
 ```
 
