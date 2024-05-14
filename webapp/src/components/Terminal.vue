@@ -411,6 +411,7 @@
 <script>
 const pako = require("pako");
 import * as monaco from "monaco-editor";
+import './basic-languages/monaco.contribution'
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 import { languages } from "./languages.js";
@@ -1467,7 +1468,7 @@ export default {
     this.editor = monaco.editor.create(divMonaco, {
       value: "",
       tabSize: 4,
-      language: "shell",
+      language: "ark",
       quickSuggestions: {
         other: false,
         comments: false,

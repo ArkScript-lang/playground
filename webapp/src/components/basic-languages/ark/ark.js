@@ -110,7 +110,7 @@ export var language = {
             { include: '@numbers' },
             { include: '@strings' },
             [/[,:;]/, 'delimiter'],
-            [/[{}\[\]()]/, '@brackets'],
+            [/[{}[]()]/, '@brackets'],
             [/@[a-zA-Z_]\w*/, 'tag'],
             [
                 /[a-zA-Z_]\w*/,
@@ -131,7 +131,7 @@ export var language = {
         // Recognize hex, negatives, decimals, imaginaries, longs, and scientific notation
         numbers: [
             [/-?0x([abcdef]|[ABCDEF]|\d)+[lL]?/, 'number.hex'],
-            [/-?(\d*\.)?\d+([eE][+\-]?\d+)?[jJ]?[lL]?/, 'number']
+            [/-?(\d*\.)?\d+([eE][+-]?\d+)?[jJ]?[lL]?/, 'number']
         ],
         // Recognize strings, including those broken across lines with \ (but not without)
         strings: [
