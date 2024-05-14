@@ -12,15 +12,15 @@ export default new Vuetify({
             dark: {
                 primary: "#B3E5FC",
                 yellow: "#FFF59D",
-                green: "#A5D6A7",                
+                green: "#A5D6A7",
                 error: "#EF9A9A",
                 toolbar: "#212121",
             },
             light: {
                 primary: "#01579B",
                 yellow: "#F57F17",
-                green: "#2E7D32",                
-                toolbar: "#E0E0E0",                
+                green: "#2E7D32",
+                toolbar: "#E0E0E0",
             }
         },
     }

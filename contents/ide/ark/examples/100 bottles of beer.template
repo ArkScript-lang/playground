@@ -1,8 +1,3 @@
-#
-#   ArkScript(아크스크립트): 100 bottles of beer
-#   출처: https://github.com/ArkScript-lang/Ark
-#
-
 (let arg (if (>= (len sys:args) 1) (toNumber (@ sys:args 0)) nil))
 (let i (if (nil? arg) 100 arg))
 

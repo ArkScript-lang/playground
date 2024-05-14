@@ -18,16 +18,16 @@ const base_dir = path.join(path.dirname(fs.realpathSync(__filename)), 'ryugod')
 const port = 8081
 const md = require('markdown-it')({
     highlight: (str, lang) => {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return '<pre class="hljs">' +
-                hljs.highlight(str, {language: lang}, true).value +
-               '</pre>';
-      } catch (e) {log.err(e.message)}
-    }
+        if (lang && hljs.getLanguage(lang)) {
+            try {
+                return '<pre class="hljs">' +
+                    hljs.highlight(str, { language: lang }, true).value +
+                    '</pre>';
+            } catch (e) { log.err(e.message) }
+        }
 
-    return '<pre class="hljs">' + md.utils.escapeHtml(str) + '</pre>';
-  }
+        return '<pre class="hljs">' + md.utils.escapeHtml(str) + '</pre>';
+    }
 })
 const mdi = require('markdown-it-mdi')
 
@@ -36,26 +36,26 @@ let dockerCount = 0
 md.use(mdi)
 
 app.use(express.static(base_dir + '/public'))
-app.use(express.json({limit : "1gb"}));
-app.use(express.urlencoded({limit : "1mb", extended: false}));
+app.use(express.json({ limit: "1gb" }));
+app.use(express.urlencoded({ limit: "1mb", extended: false }));
 app.use('/list', serveIndex(base_dir + '/contents'))
 
 const sendStatic = (req, res) => {
-	url = urlencode.decode(req.url)
-	const path = base_dir + url
+    url = urlencode.decode(req.url)
+    const path = base_dir + url
 
-	if (fs.existsSync(path)) {
-		fs.readFile(path, function(err, data) {
-			if (err)
-				console.err(err.message)
-			else {
-				res.send(data)
-			}
-		})
-	}
-	else {
+    if (fs.existsSync(path)) {
+        fs.readFile(path, function (err, data) {
+            if (err)
+                console.err(err.message)
+            else {
+                res.send(data)
+            }
+        })
+    }
+    else {
         res.redirect(`/contents/404.md`)
-	}
+    }
 }
 
 hash = () => {
@@ -82,8 +82,8 @@ app.post('/shareMySource', (req, res) => {
         path = `${base_path}/${h}.template`
     }
 
-    fs.writeFile(path, req.body.params.source, function(err) {
-        if(err) {
+    fs.writeFile(path, req.body.params.source, function (err) {
+        if (err) {
             return res.send('')
         }
         res.send(h)
@@ -100,7 +100,7 @@ app.get('/list/*\.(md|template|png)$', (req, res) => {
     const url = urlencode.decode(req.url).replace('/list/', '/contents/')
     const path = base_dir + url
 
-    if (fs.existsSync(path, {encoding:'utf-8'})) {
+    if (fs.existsSync(path, { encoding: 'utf-8' })) {
         res.sendFile(path)
     }
     else {
@@ -112,7 +112,7 @@ app.get('/contents/*\.(template)$', (req, res) => {
     const url = urlencode.decode(req.url)
     const path = base_dir + url
 
-    if (fs.existsSync(path, {encoding:'utf-8'})) {
+    if (fs.existsSync(path, { encoding: 'utf-8' })) {
         res.sendFile(path)
     }
     else {
@@ -128,9 +128,9 @@ app.get('*\.(md|md.html|template|template.html)$', (req, res) => {
     const url = urlencode.decode(req.url).replace(/\.html$/, '')
     const path = base_dir + url
 
-    if (fs.existsSync(path, {encoding:'utf-8'})) {
+    if (fs.existsSync(path, { encoding: 'utf-8' })) {
         stats = fs.statSync(path)
-        fs.readFile(path, 'utf8', function(err, data) {
+        fs.readFile(path, 'utf8', function (err, data) {
             if (err)
                 console.err(err.message)
             else {
@@ -138,11 +138,11 @@ app.get('*\.(md|md.html|template|template.html)$', (req, res) => {
                     data = `# ${url}\n` + '```\n' + data + '\n```'
                 }
                 const html = '<html>' +
-                '<head>' +
-                '<body>' +
-                md.render(data) +
-                `<hr><sub><sup>Modified at ${stats.mtime}</sup></sub>` +
-                '</body></html>'
+                    '<head>' +
+                    '<body>' +
+                    md.render(data) +
+                    `<hr><sub><sup>Modified at ${stats.mtime}</sup></sub>` +
+                    '</body></html>'
                 res.header('Access-Control-Allow-Origin', '*')
                 res.send(html)
             }
@@ -162,16 +162,16 @@ app.get('/sitemap.xml', (req, res) => {
     const file_list = []
 
     readdir = (path, file_list) => {
-        if (fs.existsSync(path, {encoding:'utf-8'})) {
+        if (fs.existsSync(path, { encoding: 'utf-8' })) {
             stats = fs.lstatSync(path)
-            const files = fs.readdirSync(path, {encoding:'utf-8'})
+            const files = fs.readdirSync(path, { encoding: 'utf-8' })
 
             files.sort()
 
             for (file of files) {
                 const fpath = path + '/' + file
 
-                if (fs.existsSync(fpath, {encoding:'utf-8'})) {
+                if (fs.existsSync(fpath, { encoding: 'utf-8' })) {
                     stats = fs.lstatSync(fpath)
                     if (stats.isDirectory()) {
                         readdir(path + '/' + file, file_list)
@@ -203,11 +203,11 @@ app.get('/contents/?**', (req, res) => {
     const path = base_dir + url
     var ret = {}
 
-    if (fs.existsSync(path, {encoding:'utf-8'})) {
+    if (fs.existsSync(path, { encoding: 'utf-8' })) {
         stats = fs.lstatSync(path)
         if (stats.isDirectory()) {
 
-            fs.readdir(path, {encoding:'utf-8'}, (err, files) => {
+            fs.readdir(path, { encoding: 'utf-8' }, (err, files) => {
                 if (err) {
                     console.log(err)
                     res.send('Error')
@@ -224,10 +224,10 @@ app.get('/contents/?**', (req, res) => {
                     stats = fs.lstatSync(path + '/' + file)
                     isDir = stats.isDirectory()
                     if (isDir || file.endsWith('\.md') || file.endsWith('\.template')) {
-                        subfiles = isDir ? fs.readdirSync(path + '/' + file, {encoding:'utf-8'}):[]
+                        subfiles = isDir ? fs.readdirSync(path + '/' + file, { encoding: 'utf-8' }) : []
                         subfiles.sort()
                         subfiles = subfiles.filter(f => f.endsWith('\.md') || f.endsWith('\.template'))
-                        file_list.push({name:file,type:isDir ? "d":"f",list:subfiles})
+                        file_list.push({ name: file, type: isDir ? "d" : "f", list: subfiles })
                     }
                 })
 
@@ -248,31 +248,31 @@ const server = http.createServer(app).listen(port, () => {
 })
 
 const websocketServer = new websocket.Server(
-    {server, path: '/terminal'}
+    { server, path: '/terminal' }
 )
 
 setInterval(function ping() {
-	if (websocketServer.clients.size > 0) {
-		websocketServer.clients.forEach(function each(socket) {
-			if (socket.isAlive === false) return socket.terminate()
+    if (websocketServer.clients.size > 0) {
+        websocketServer.clients.forEach(function each(socket) {
+            if (socket.isAlive === false) return socket.terminate()
 
-			socket.isAlive = false;
-			socket.ping(websocketServer.clients.size)
+            socket.isAlive = false;
+            socket.ping(websocketServer.clients.size)
             socket.send('2' + websocketServer.clients.size)
-		})
-	}
+        })
+    }
 }, 5000)
 
 let docker_seq = 0
 
 websocketServer.on('connection', (ws, req) => {
-    docker_seq = docker_seq > 99999999 ? 0 : docker_seq+1
+    docker_seq = docker_seq > 99999999 ? 0 : docker_seq + 1
     let logMessage = ''
     const docker_name = 'RS' + `0000000${docker_seq}`.slice(-8)
 
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
     var lang = req.headers["accept-language"]
-    var locale = (lang && lang.split(',')[0].indexOf("ko") >= 0)?'ko_KR':'C'
+    var locale = (lang && lang.split(',')[0].indexOf("ko") >= 0) ? 'ko_KR' : 'C'
     console.log(new Date().toString(), 'connected...', ip, docker_name, lang)
 
     const child = pty.spawn('docker', [
@@ -315,21 +315,21 @@ websocketServer.on('connection', (ws, req) => {
         console.log(decoded)
         const cmd = decoded[0]
         switch (cmd) {
-        case '1':
-            if (message) {
-                const msg = decoded.slice(1)
-                console.log('message 1: ', msg)
-                child.write(msg)
-            }
-            break
-        case '2': /* resize */
-            const size = decoded.split(' ')
-            child.resize(parseInt(size[1]), parseInt(size[2]))
-            break
+            case '1':
+                if (message) {
+                    const msg = decoded.slice(1)
+                    console.log('message 1: ', msg)
+                    child.write(msg)
+                }
+                break
+            case '2': /* resize */
+                const size = decoded.split(' ')
+                child.resize(parseInt(size[1]), parseInt(size[2]))
+                break
         }
     })
     ws.on('close', (e) => {
-        spawn('docker', ['kill', docker_name]).on('close', code => {            
+        spawn('docker', ['kill', docker_name]).on('close', code => {
             console.log('socket closed...', new Date().toString(), docker_name, child.pid, e)
         })
     })

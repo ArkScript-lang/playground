@@ -20,7 +20,6 @@ export default {
   },
   methods: {
     click: function (e) {
-      console.log("Melong!");
       this.$emit("click", e);
     },
   },
