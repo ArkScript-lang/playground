@@ -10,11 +10,10 @@ const websocket = require('ws')
 const hljs = require('highlight.js')
 const urlencode = require('urlencode')
 const fs = require('fs')
-const { SIGTERM, SIGQUIT, SIGINT, SIGKILL } = require('constants')
 const app = express()
 app.disable('x-powered-by')
 const path = require('path')
-const base_dir = path.join(path.dirname(fs.realpathSync(__filename)), 'ryugod')
+const base_dir = path.join(path.dirname(fs.realpathSync(__filename)), 'webapp')
 const port = 8081
 const md = require('markdown-it')({
     highlight: (str, lang) => {
@@ -267,12 +266,11 @@ let docker_seq = 0
 
 websocketServer.on('connection', (ws, req) => {
     docker_seq = docker_seq > 99999999 ? 0 : docker_seq + 1
-    let logMessage = ''
     const docker_name = 'RS' + `0000000${docker_seq}`.slice(-8)
 
     var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
     var lang = req.headers["accept-language"]
-    var locale = (lang && lang.split(',')[0].indexOf("ko") >= 0) ? 'ko_KR' : 'C'
+    var locale = 'C'
     console.log(new Date().toString(), 'connected...', ip, docker_name, lang)
 
     const child = pty.spawn('docker', [

@@ -466,11 +466,11 @@ export default {
     termStr: "",
     fullTerminal: false,
     contents: "",
-    languageIcon: "mdi-bash",
-    selectedLanguage: "Bash",
+    languageIcon: "mdi-code-parentheses",
+    selectedLanguage: "ArkScript",
     QRCode: "",
     sharedURL: "",
-    options: { selectedLanguage: "Bash", tabSize: 4, dark: true },
+    options: { selectedLanguage: "ArkScript", tabSize: 4, dark: true },
     languages: null,
     sharedHash: String,
     fitAddon: new FitAddon(),
@@ -751,7 +751,7 @@ export default {
                   }
                 },
                 (tx, result) => {
-                  this.onChangeLanguage("Bash");
+                  this.onChangeLanguage("ArkScript");
                   this.options["dark"] = this.$vuetify.theme.dark
                     ? "true"
                     : "false";
@@ -1472,7 +1472,7 @@ export default {
     },
   },
   mounted: function () {
-    this.$i18n.locale = navigator.language === "ko" ? "ko" : "en";
+    this.$i18n.locale = "en";
     this.tabMenu = [
       { id: "close", icon: "mdi-close", title: this.$t("closeTab") },
       { id: "new", icon: "mdi-plus", title: this.$t("newTab") },
