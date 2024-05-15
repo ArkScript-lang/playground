@@ -8,12 +8,12 @@ import i18n from '@/plugins/i18n'
 
 Vue.config.productionTip = false
 
-var router = new VueRouter({
+const router = new VueRouter({
   mode: 'history',
   routes: [
-    { path: '/pages/:app_path*', component: App }
+    {path: '/pages/:app_path*', component: App}
   ]
-})
+});
 
 new Vue({
   vuetify,

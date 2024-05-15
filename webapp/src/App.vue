@@ -19,8 +19,6 @@
 <style src='./styles/xterm.css'></style>
 <style src='./styles/vs2015.css'></style>
 <script>
-const pako = require("pako");
-
 import LeftMenu from "./components/LeftMenu";
 import Terminal from "./components/Terminal";
 import axios from "axios";
@@ -43,21 +41,6 @@ export default {
       this.$refs.leftMenu.visible = !this.$refs.leftMenu.visible;
     },
     showContents: function (path) {
-      const source = path.split("/").pop();
-
-      if (!(path.endsWith(".template") || path.endsWith(".md"))) {
-        if (source.startsWith("source:")) {
-          this.$refs.terminal.setEditorValue(
-            new TextDecoder("utf-8").decode(
-              pako.inflate(
-                Buffer.from(source.slice(7).replace(/_/g, "/"), "base64")
-              )
-            )
-          );
-        }
-        return;
-      }
-
       axios
         .get(path, {
           headers: {
@@ -68,10 +51,6 @@ export default {
           this.$refs.leftMenu.selected = path;
           if (path.endsWith(".template")) {
             this.$refs.terminal.setEditorValue(res.data);
-
-            if (source === "Hello, World!.template") {
-              this.$refs.terminal.openLastSource();
-            }
           } else {
             this.contents = res.data;
           }
@@ -83,8 +62,18 @@ export default {
     onTerminalCount: function (count) {
       this.termCount = count;
     },
+    loadMenu() {
+      axios
+        .get(`/contents/ide/ark/`)
+        .then((res) => {
+          if (res.data) this.menu = res.data;
+        })
+        .catch((err) => {
+          console.log(err);
+          this.menu = err;
+        });
+    },
     navigate: function (template) {
-      let path_to = "ide";
       const html = document.getElementsByTagName("html")[0];
       const event = new CustomEvent("scroll", {});
       html.pageYOffset = 0;
@@ -92,42 +81,28 @@ export default {
         html.scrollTop = 0;
       });
       html.dispatchEvent(event);
-
       html.style.overflowY = "hidden";
 
-      path_to += `/${template}`;
-
-      const path = `/contents/${path_to}/`;
-      axios
-        .get(path)
-        .then((res) => {
-          if (res.data) {
-            this.menu = res.data;
-
-            if (
-              !window.location.href.endsWith(".template") &&
-              !window.location.href.split("/").pop().startsWith("source:")
-            ) {
-              this.showContents(path + "Hello, World!.template");
-            }
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          this.menu = err;
-        });
+      this.loadMenu();
+      if (
+        !window.location.href.endsWith(".template") &&
+        !window.location.href.split("/").pop().startsWith("source:")
+      ) {
+        template = "hello_world.template";
+      }
+      this.showContents(`/contents/ide/ark/${template}`);
     },
   },
   mounted() {
     this.$i18n.locale = "en";
     const path = this.$route.params.app_path;
 
-    if (path) {
-      const contents = path.split("/")[0];
-      if (contents)
-        setTimeout(() => {
-          this.showContents(`/contents/${path}`);
-        }, 500);
+    this.loadMenu();
+
+    if (path && path.endsWith(".template")) {
+        this.navigate(path.replace("ide/ark/", ""));
+    } else {
+      this.navigate("hello_world.template");
     }
   },
 };

@@ -4,7 +4,7 @@ const express = require('express')
 const serveIndex = require('serve-index')
 const pty = require('node-pty')
 const crypto = require('crypto')
-const { spawn } = require("child_process")
+const {spawn} = require("child_process")
 const http = require('http')
 const websocket = require('ws')
 const hljs = require('highlight.js')
@@ -16,9 +16,11 @@ const md = require('markdown-it')({
         if (lang && hljs.getLanguage(lang)) {
             try {
                 return '<pre class="hljs">' +
-                    hljs.highlight(str, { language: lang }, true).value +
+                    hljs.highlight(str, {language: lang}, true).value +
                     '</pre>';
-            } catch (e) { log.err(e.message) }
+            } catch (e) {
+                log.err(e.message)
+            }
         }
 
         return '<pre class="hljs">' + md.utils.escapeHtml(str) + '</pre>';
@@ -36,8 +38,8 @@ let dockerCount = 0
 md.use(mdi)
 
 app.use(express.static(base_dir + '/public'))
-app.use(express.json({ limit: "1gb" }));
-app.use(express.urlencoded({ limit: "1mb", extended: false }));
+app.use(express.json({limit: "1gb"}));
+app.use(express.urlencoded({limit: "1mb", extended: false}));
 app.use('/list', serveIndex(base_dir + '/contents'))
 
 const sendStatic = (req, res) => {
@@ -54,8 +56,7 @@ const sendStatic = (req, res) => {
                 res.send(data)
             }
         })
-    }
-    else {
+    } else {
         res.redirect(`/contents/404.md`)
     }
 }
@@ -83,10 +84,9 @@ app.get('/list/*\.(md|template|png)$', (req, res) => {
     const path = base_dir + url
     console.log(path)
 
-    if (fs.existsSync(path, { encoding: 'utf-8' })) {
+    if (fs.existsSync(path, {encoding: 'utf-8'})) {
         res.sendFile(path)
-    }
-    else {
+    } else {
         res.redirect(`/contents/404.md`)
     }
 })
@@ -98,10 +98,9 @@ app.get('/contents/*\.(template)$', (req, res) => {
     const path = base_dir + url
     console.log(path)
 
-    if (fs.existsSync(path, { encoding: 'utf-8' })) {
+    if (fs.existsSync(path, {encoding: 'utf-8'})) {
         res.sendFile(path)
-    }
-    else {
+    } else {
         res.redirect(`/contents/404.md`)
     }
 })
@@ -119,7 +118,7 @@ app.get('*\.(md|md.html|template|template.html)$', (req, res) => {
     const path = base_dir + url
     console.log(path)
 
-    if (fs.existsSync(path, { encoding: 'utf-8' })) {
+    if (fs.existsSync(path, {encoding: 'utf-8'})) {
         stats = fs.statSync(path)
         fs.readFile(path, 'utf8', function (err, data) {
             if (err)
@@ -138,8 +137,7 @@ app.get('*\.(md|md.html|template|template.html)$', (req, res) => {
                 res.send(html)
             }
         })
-    }
-    else {
+    } else {
         res.redirect(`/contents/404.md`)
     }
 })
@@ -157,11 +155,11 @@ app.get('/contents/?**', (req, res) => {
     const path = base_dir + url
     var ret = {}
 
-    if (fs.existsSync(path, { encoding: 'utf-8' })) {
+    if (fs.existsSync(path, {encoding: 'utf-8'})) {
         stats = fs.lstatSync(path)
         if (stats.isDirectory()) {
 
-            fs.readdir(path, { encoding: 'utf-8' }, (err, files) => {
+            fs.readdir(path, {encoding: 'utf-8'}, (err, files) => {
                 if (err) {
                     console.log(err)
                     res.send('Error')
@@ -178,10 +176,10 @@ app.get('/contents/?**', (req, res) => {
                     stats = fs.lstatSync(path + '/' + file)
                     isDir = stats.isDirectory()
                     if (isDir || file.endsWith('\.md') || file.endsWith('\.template')) {
-                        subfiles = isDir ? fs.readdirSync(path + '/' + file, { encoding: 'utf-8' }) : []
+                        subfiles = isDir ? fs.readdirSync(path + '/' + file, {encoding: 'utf-8'}) : []
                         subfiles.sort()
                         subfiles = subfiles.filter(f => f.endsWith('\.md') || f.endsWith('\.template'))
-                        file_list.push({ name: file, type: isDir ? "d" : "f", list: subfiles })
+                        file_list.push({name: file, type: isDir ? "d" : "f", list: subfiles})
                     }
                 })
 
@@ -202,7 +200,7 @@ const server = http.createServer(app).listen(port, () => {
 })
 
 const websocketServer = new websocket.Server(
-    { server, path: '/terminal' }
+    {server, path: '/terminal'}
 )
 
 setInterval(function ping() {

@@ -23,14 +23,14 @@
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn color="primary" text @click="$emit('onYes'), (dialog = false)"
-          >확인</v-btn
+          >{{ $t("ok") }}</v-btn
         >
         <v-btn
           v-if="type === 'yesno'"
           color="red darken-1"
           text
           @click="$emit('onNo'), (dialog = false)"
-          >취소</v-btn
+          >{{ $t("cancel") }}</v-btn
         >
       </v-card-actions>
     </v-card>

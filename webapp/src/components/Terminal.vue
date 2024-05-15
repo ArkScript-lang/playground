@@ -6,40 +6,6 @@
           :dark="dark"
           @click="$emit('toggleMenu')"
         ></v-app-bar-nav-icon>
-        <v-menu offset-y>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              ref="langList"
-              width="120px"
-              text
-              x-small
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon color="primary">{{ languageIcon }}</v-icon>
-              {{ selectedLanguage }}
-            </v-btn>
-          </template>
-          <v-list
-            min-width="120px"
-            max-height="calc(100vh - 60px)"
-            class="overflow-y-auto"
-            dense
-          >
-            <template v-for="(language, index) in Object.keys(languages)">
-              <v-list-item @click="onChangeLanguage(language)" :key="index">
-                <v-list-item-icon>
-                  <v-icon
-                    :color="language === selectedLanguage ? 'error' : 'primary'"
-                  >
-                    {{ languages[language].icon }}
-                  </v-icon>
-                </v-list-item-icon>
-                <v-list-item-title>{{ language }}</v-list-item-title>
-              </v-list-item>
-            </template>
-          </v-list>
-        </v-menu>
         <v-tooltip bottom>
           <span>{{ $t("connect") }}</span>
           <template v-slot:activator="{ on, attrs }">
@@ -78,10 +44,8 @@
               x-small
               :disabled="
                 !(
-                  languages[selectedLanguage] &&
-                  languages[selectedLanguage].cli &&
                   termStr &&
-                  termStr.match(/.*(\$|#) $/i)
+                  termStr.match(/.*([$#]) $/i)
                 )
               "
               @click="editor.focus(), editor.trigger('', 'repl')"
@@ -99,7 +63,7 @@
               text
               x-small
               :disabled="
-                !(!connected || (termStr && termStr.match(/.*(\$|#) $/i)))
+                !(!connected || (termStr && termStr.match(/.*([$#]) $/i)))
               "
               @click="executeCheck()"
               v-bind="attrs"
@@ -140,34 +104,6 @@
               v-on="on"
             >
               <v-icon dense>mdi-flash</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <span>{{ $t("load") }}</span>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              text
-              x-small
-              @click="sourceControl('open', selectedLanguage)"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon dense>mdi-folder-open-outline</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <span>{{ $t("save") }}</span>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              text
-              x-small
-              @click="sourceControl('save', selectedLanguage)"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon dense>mdi-content-save-outline</v-icon>
             </v-btn>
           </template>
         </v-tooltip>
@@ -259,10 +195,7 @@
               v-on:dblclick="renaming = true"
               v-else
             >
-              {{
-                languages[selectedLanguage] &&
-                `${item.filename}.${languages[selectedLanguage].ext}`
-              }}
+              {{ `${item.filename}.${languageConf.ext}` }}
             </span>
 
             <v-spacer> </v-spacer>
@@ -280,7 +213,7 @@
           <v-tooltip bottom>
             <span>{{ $t("newTab") }}</span>
             <template v-slot:activator="{ on, attrs }">
-              <v-btn small icon @click="newTab" v-bind="attrs" v-on="on">
+              <v-btn small icon @click="newTab()" v-bind="attrs" v-on="on">
                 <v-icon small>mdi-plus</v-icon>
               </v-btn>
             </template>
@@ -302,25 +235,9 @@
             >{{ $t("terminal")
             }}{{ connected && count ? ` - ${count}` : "" }}</v-tab
           >
-          <v-tab key="1" href="#tab-1">{{ $t("output") }}</v-tab>
         </v-tabs>
         <v-spacer></v-spacer>
-        <v-layout justify-end>
-          <v-tooltip bottom>
-            <span>{{ $t("clear") }}</span>
-            <template v-slot:activator="{ on, attrs }">
-              <v-btn
-                icon
-                small
-                @click="removeImages()"
-                v-bind="attrs"
-                v-on="on"
-                :disabled="terminalTab !== 'tab-1'"
-              >
-                <v-icon dense>mdi-image-off-outline</v-icon>
-              </v-btn>
-            </template>
-          </v-tooltip>
+        <v-layout justify-end="true">
           <v-tooltip bottom>
             <span>{{ $t("decreasePannel") }}</span>
             <template v-slot:activator="{ on, attrs }">
@@ -374,9 +291,6 @@
             <div id="terminal" @drop="onDrop" @dragover="onDragOver"></div>
           </div>
         </v-tab-item>
-        <v-tab-item eager key="1" value="tab-1">
-          <div id="con-html" class="con-html"></div>
-        </v-tab-item>
       </v-tabs-items>
     </div>
     <v-menu v-model="tabMenu" :position-x="x" :position-y="y" absolute offset-y>
@@ -409,17 +323,22 @@
 <style src='../styles/github-markdown.css'></style>
 <style src='../styles/vs2015.css'></style>
 <script>
-const pako = require("pako");
 import * as monaco from "monaco-editor";
-import './basic-languages/monaco.contribution'
+import { languageConf } from './arkscript';
+
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
-import { languages } from "./languages.js";
+
 import axios from "axios";
 import Settings from "./Settings";
 
 export default {
   name: "Terminal",
+  computed: {
+    languageConf() {
+      return languageConf
+    }
+  },
 
   components: {
     Settings,
@@ -451,11 +370,9 @@ export default {
     fullTerminal: false,
     contents: "",
     languageIcon: "mdi-code-parentheses",
-    selectedLanguage: "ArkScript",
     QRCode: "",
     sharedURL: "",
-    options: { selectedLanguage: "ArkScript", tabSize: 4, dark: true },
-    languages: null,
+    options: { tabSize: 4, dark: true },
     sharedHash: String,
     fitAddon: new FitAddon(),
     connected: false,
@@ -469,40 +386,22 @@ export default {
       immediate: true,
       handler(val) {
         monaco.editor.setTheme(val ? "vs-dark" : "vs");
-        this.options.dark &&
-          this.options.dark !== this.$vuetify.theme.dark &&
-          this.optionControl("save");
       },
-    },
-    $route(to) {
-      const path_to = encodeURIComponent(to.path).split("/")[3];
-      if (path_to) {
-        for (const l in this.languages) {
-          if (this.languages[l].template === path_to) {
-            this.onChangeLanguage(l);
-            break;
-          }
-        }
-      }
     },
   },
   methods: {
-    openLastSource: function () {
-      this.sourceControl("open", this.selectedLanguage);
-    },
     showSettingsDialog: function () {
       const options = {
         dark: this.$vuetify.theme.dark,
-        selectedLanguage: this.selectedLanguage,
         tabSize: this.editor.getModel().getOptions()["tabSize"],
         fontSize: this.editor.getOption(monaco.editor.EditorOption.fontSize),
         args: this.options[
-          `${this.languages[this.selectedLanguage].template}.args`
+          `${languageConf.template}.args`
         ]
           ? this.options[
-              `${this.languages[this.selectedLanguage].template}.args`
+              `${languageConf.template}.args`
             ]
-          : this.languages[this.selectedLanguage].args,
+          : languageConf.args,
       };
 
       this.$refs["settingsDialog"].show(options);
@@ -512,10 +411,9 @@ export default {
         this.$vuetify.theme.dark = options.dark;
         this.editor.updateOptions({ fontSize: options.fontSize });
         this.editor.getModel().updateOptions({ tabSize: options.tabSize });
-        this.options[`${this.languages[this.selectedLanguage].template}.args`] =
+        this.options[`${languageConf.template}.args`] =
           options.args;
       }
-      this.optionControl("save");
       this.showSnackbar(this.$t("savedOptions"));
     },
     showSnackbar: function (msg) {
@@ -544,7 +442,7 @@ export default {
           break;
       }
     },
-    newTab: function () {
+    newTab: function (name) {
       let index = 999;
       for (let i = 0; i < 100; i++) {
         if (!this.fileTabs.filter((e) => e.filename === `noname${i}`)[0]) {
@@ -553,7 +451,7 @@ export default {
         }
       }
       this.fileTabs.push({
-        filename: `noname${index}`,
+        filename: name ?? `noname${index}`,
         saved: true,
         value: "",
         position: null,
@@ -563,7 +461,7 @@ export default {
     },
     renameTab: function (e) {
       let filename = e.replace(
-        `.${this.languages[this.selectedLanguage].ext}`,
+        `.${languageConf.ext}`,
         ""
       );
 
@@ -579,8 +477,19 @@ export default {
         return;
       }
 
-      this.sourceControl("rename", this.selectedLanguage, filename);
       this.renaming = false;
+    },
+    closeTab: function () {
+      const tab = this.fileTabIndex === this.fileTabs.length-1 ? this.fileTabs.length-1 : this.fileTabIndex
+
+      this.befFileTab = null
+      if (this.fileTabs.length === 1) {
+        this.fileTabs[0].value = this.editor.getValue()
+      }
+      if (this.fileTabIndex > 0)
+        this.fileTabs.splice(this.fileTabIndex, 1)
+
+      this.onChangeFileTab(tab)
     },
     onChangeFileTab: function (tab) {
       this.renaming = false;
@@ -603,9 +512,7 @@ export default {
       this.filename = this.fileTabs[tab].filename;
       this.fileTabIndex = tab;
 
-      if (this.fileTabs[tab].value === null)
-        this.sourceControl("open", this.selectedLanguage);
-      else this.editor.setValue(this.fileTabs[tab].value);
+      this.editor.setValue(this.fileTabs[tab].value);
       this.editor.getModel().setEOL(0);
       this.fileTabs[tab].position &&
         this.editor.setPosition(this.fileTabs[tab].position);
@@ -613,9 +520,6 @@ export default {
         this.editor.setScrollPosition(this.fileTabs[tab].scrollPosition);
       this.befFileTab = tabName;
       this.editor.focus();
-    },
-    closeTab: function () {
-      this.sourceControl("close", this.selectedLanguage);
     },
     copyToClipboard: function (txt) {
       const dummy = document.createElement("input");
@@ -632,266 +536,6 @@ export default {
       this.editor.setScrollLeft(0);
       this.editor.setScrollTop(0);
       this.editor.focus();
-    },
-    optionControl: function (flag) {
-      try {
-        const db = window.openDatabase(
-          "playground",
-          "1.0",
-          "Database",
-          16 * 1024 * 1024
-        );
-
-        db.transaction((tx) => {
-          tx.executeSql(
-            "CREATE TABLE IF NOT EXISTS tab_options (option, value, PRIMARY KEY(option))"
-          );
-
-          switch (flag) {
-            case "save":
-              this.options["selectedLanguage"] = this.selectedLanguage;
-              this.options["dark"] = this.$vuetify.theme.dark
-                ? "true"
-                : "false";
-              if (this.editor.getModel())
-                this.options["tabSize"] = this.editor.getModel().getOptions()[
-                  "tabSize"
-                ];
-              this.options["fontSize"] = this.editor.getOption(
-                monaco.editor.EditorOption.fontSize
-              );
-
-              for (const option in this.options) {
-                option &&
-                  option !== "undefined" &&
-                  tx.executeSql(
-                    "INSERT OR REPLACE INTO tab_options (option, value) VALUES(?, ?)",
-                    [option, this.options[option]],
-                    () => {},
-                    (tx, result) => {
-                      console.error("fail on save options", result);
-                    }
-                  );
-              }
-
-              break;
-            case "load":
-              tx.executeSql(
-                "SELECT option, value FROM tab_options WHERE value <> 'undefined'",
-                [],
-                (tx, result) => {
-                  if (result.rows[0]) {
-                    for (const row in result.rows) {
-                      if (result.rows[row].value) {
-                        if (result.rows[row].option)
-                          this.options[result.rows[row].option] =
-                            result.rows[row].value;
-                      }
-                    }
-                    this.selectedLanguage = this.options["selectedLanguage"];
-                    this.$vuetify.theme.dark = this.options["dark"] === "true";
-                    this.editor.updateOptions({
-                      fontSize: this.options["fontSize"],
-                    });
-                    this.editor
-                      .getModel()
-                      .updateOptions({ tabSize: this.options["tabSize"] });
-                  }
-
-                  this.sourceControl("tabs", this.selectedLanguage);
-                  const path = this.$route.params.app_path
-                    ? this.$route.params.app_path
-                    : `shared/${
-                        this.languages[this.selectedLanguage].template
-                      }`;
-
-                  if (path) {
-                    const contents = path.split("/");
-                    if (contents && contents[1]) {
-                      for (const l in this.languages) {
-                        if (this.languages[l].template === contents[1]) {
-                          if (
-                            !(
-                              path.endsWith(".template") || path.endsWith(".md")
-                            )
-                          ) {
-                            const source = path.split("/").pop();
-                            if (source.startsWith("source:")) {
-                              this.onChangeLanguage(l, true);
-                              return;
-                            }
-                          }
-
-                          this.onChangeLanguage(
-                            l,
-                            window.location.pathname.startsWith(
-                              "/pages/shared"
-                            ) || window.location.href.endsWith(".template")
-                          );
-                          break;
-                        }
-                      }
-                    }
-                  }
-                },
-                (tx, result) => {
-                  this.onChangeLanguage("ArkScript");
-                  this.options["dark"] = this.$vuetify.theme.dark
-                    ? "true"
-                    : "false";
-                  console.error("fail on open options", result);
-                }
-              );
-
-              break;
-          }
-        });
-      } catch (e) {
-        console.error(e);
-      }
-    },
-    sourceControl: function (flag, language, newFileName) {
-      try {
-        const db = window.openDatabase(
-          "playground",
-          "1.0",
-          "Database",
-          16 * 1024 * 1024
-        );
-
-        db.transaction((tx) => {
-          tx.executeSql(
-            "CREATE TABLE IF NOT EXISTS tab_sources (language, filename, source, PRIMARY KEY(language, filename))"
-          );
-
-          switch (flag) {
-            case "save":
-              {
-                const source = this.editor.getValue();
-
-                tx.executeSql(
-                  "INSERT OR REPLACE INTO tab_sources (language, filename, source) VALUES(?, ?, ?)",
-                  [language, this.filename, source],
-                  () => {
-                    this.showSnackbar(
-                      `${language} - ${this.filename} ${this.$t("saved")}`
-                    );
-                    this.fileTabs[this.fileTabIndex].saved = true;
-                  },
-                  (tx, result) => {
-                    this.showSnackbar(this.$t("failedSave"));
-                    console.error("fail on save", result);
-                  }
-                );
-              }
-              break;
-            case "open":
-              tx.executeSql(
-                "SELECT source FROM tab_sources WHERE language = ? AND filename = ?",
-                [language, this.filename],
-                (tx, result) => {
-                  if (result.rows[0]) {
-                    this.setEditorValue(result.rows[0].source);
-                    this.showSnackbar(
-                      `${language} - ${this.filename} ${this.$t("loaded")}`
-                    );
-                  } else {
-                    if (this.filename !== this.defaultFilename)
-                      this.showSnackbar(
-                        `${language} - ${this.filename} ${this.$t("noSaved")}`
-                      );
-                  }
-                },
-                (tx, result) => {
-                  this.showSnackbar(this.$t("failedQuery"));
-                  console.error("fail on open", result);
-                }
-              );
-              break;
-            case "close":
-              tx.executeSql(
-                "DELETE FROM tab_sources WHERE language = ? AND filename = ?",
-                [language, this.filename],
-                (tx, result) => {
-                  const tab =
-                    this.fileTabIndex == this.fileTabs.length - 1
-                      ? this.fileTabs.length - 1
-                      : this.fileTabIndex;
-
-                  this.befFileTab = null;
-                  result.rowsAffected > 0 &&
-                    this.showSnackbar(
-                      `${language} - ${this.filename} 소스가 삭제되었습니다`
-                    );
-                  if (this.fileTabs.length == 1) {
-                    this.fileTabs[0].value = this.editor.getValue();
-                  }
-                  if (this.fileTabIndex > 0)
-                    this.fileTabs.splice(this.fileTabIndex, 1);
-
-                  this.onChangeFileTab(tab);
-                },
-                (tx, result) => {
-                  this.showSnackbar("소스 삭제에 실패했습니다");
-                  console.error("fail on close", result);
-                }
-              );
-              break;
-            case "rename":
-              tx.executeSql(
-                "UPDATE tab_sources set filename = ? WHERE language = ? AND filename = ?",
-                [newFileName, language, this.filename],
-                () => {
-                  this.fileTabs[this.fileTabIndex].filename = newFileName;
-                  this.filename = newFileName;
-                },
-                (tx, result) => {
-                  this.showSnackbar("소스 이름 바꾸기에 실패했습니다");
-                  console.error("fail on rename", result);
-                }
-              );
-              break;
-            case "tabs":
-              this.fileTabs = [
-                {
-                  filename: this.defaultFilename,
-                  saved: true,
-                  value: "",
-                  position: null,
-                  scrollPosition: { scrollLeft: 0, scrollTop: 0 },
-                },
-              ];
-
-              tx.executeSql(
-                "SELECT filename FROM tab_sources WHERE language = ?",
-                [language],
-                (tx, result) => {
-                  if (result.rows[0]) {
-                    for (let i = 0; i < result.rows.length; i++) {
-                      if (result.rows[i].filename === this.defaultFilename)
-                        continue;
-                      this.fileTabs.push({
-                        filename: result.rows[i].filename,
-                        saved: true,
-                        value: null,
-                        position: null,
-                        scrollPosition: { scrollLeft: 0, scrollTop: 0 },
-                      });
-                    }
-                  }
-                },
-                (tx, result) => {
-                  console.error("fail on tabs", result);
-                }
-              );
-
-              break;
-          }
-        });
-      } catch (e) {
-        if (flag === "save") this.showSnackbar("저장이 지원되지 않습니다");
-        console.error(e);
-      }
     },
     sendFile: function (file) {
       if (file.size > 1024 * 1024 * 10) {
@@ -935,20 +579,20 @@ export default {
           reject(e);
         };
         reader.filename = file.name.replace(
-          `.${this.languages[this.selectedLanguage].ext}`,
+          `.${languageConf.ext}`,
           ""
         );
         reader.readAsText(file);
       });
     },
     addTab: function (filename, value) {
-      const ext = `.${this.languages[this.selectedLanguage].ext}`;
+      const ext = `.${languageConf.ext}`;
       if (filename.endsWith(ext)) filename = filename.replace(ext, "");
 
       if (this.fileTabs.filter((e) => e.filename === filename)[0]) {
         filename !== this.defaultFilename &&
           this.showSnackbar(
-            `${filename} 동일한 파일명이 존재하여 불러올 수 없습니다`
+            `Unable to load ${filename} because it already exists`
           );
         return;
       }
@@ -971,7 +615,7 @@ export default {
       if (ev.dataTransfer.items) {
         for (i = 0; i < ev.dataTransfer.items.length; i++) {
           if (ev.dataTransfer.items[i].kind === "file") {
-            var file = ev.dataTransfer.items[i].getAsFile();
+            const file = ev.dataTransfer.items[i].getAsFile();
             this.getFileContents(file);
           }
         }
@@ -990,11 +634,10 @@ export default {
         return;
       }
 
-      if (!(this.termStr && this.termStr.match(/.*(\$|#) $/i))) {
-        this.showSnackbar("셸명령이 가능한 상태에서 파일 업로드가 가능합니다");
+      if (!(this.termStr && this.termStr.match(/.*([$#]) $/i))) {
+        this.showSnackbar("Can not upload file: currently not in shell");
         return;
       }
-      e = e || window.event;
       e.preventDefault();
 
       if (e.dataTransfer.items) {
@@ -1041,32 +684,6 @@ export default {
     openSite: function (site) {
       window.open(site, "_blank");
     },
-    renderMarkdown: function (markdown) {
-      const con_html = document.getElementById("con-html");
-
-      const hljs = require("highlight.js");
-      const md = require("markdown-it")({
-        highlight: (str, lang) => {
-          if (lang && hljs.getLanguage(lang)) {
-            try {
-              return (
-                '<pre class="hljs">' +
-                hljs.highlight(str, { language: lang }, true).value +
-                "</pre>"
-              );
-            } catch (e) {
-              console.error(e.message);
-            }
-          }
-
-          return '<pre class="hljs">' + md.utils.escapeHtml(str) + "</pre>";
-        },
-      });
-      con_html.innerHTML = `<div class='markdown-body'>${md.render(
-        markdown
-      )}</div>`;
-      con_html.style.overflowY = "auto";
-    },
     resizeTermScreen: function (isUp) {
       const monaco = document.getElementById("monaco");
       if (!monaco) return;
@@ -1080,11 +697,8 @@ export default {
       if (this.befHeight !== 0) this.befHeight = monaco.style.height;
       this.fitSize();
     },
-    messageBox: function (id, width) {
-      this.$refs[id].show(width);
-    },
     decoration: function (data) {
-      const errorRegEx = this.languages[this.selectedLanguage].errorRegEx;
+      const errorRegEx = languageConf.errorRegEx;
       if (!errorRegEx) return;
 
       const regexp = new RegExp(errorRegEx, "g");
@@ -1135,13 +749,13 @@ export default {
 
       const term = vm.term;
       term.clear();
-      term.write(this.$t("connectToServer"));
+      term.write(this.$t("connectToServer").toString());
 
       const ws = new WebSocket(`ws://localhost:8081/terminal`);
 
       ws.onopen = () => {
-        term.write(this.$t("connected"));
-        term.write(this.$t("pleaseWait"));
+        term.write(this.$t("connected").toString());
+        term.write(this.$t("pleaseWait").toString());
         vm.ws = ws;
         vm.connected = true;
         ws.send(`2 ${term.cols} ${term.rows}`);
@@ -1171,7 +785,7 @@ export default {
         if (data.indexOf(HEREDOC_BEGIN) !== -1) {
           if (regex.exec(data) === null) {
             isHereDoc = true;
-            term.write(this.$t("uploadingFile"));
+            term.write(this.$t("uploadingFile").toString());
           }
           return;
         }
@@ -1213,7 +827,7 @@ export default {
         this.execute(this, command);
       }
 
-      if (!this.languages[this.selectedLanguage].comand) {
+      if (!languageConf.command) {
         this.execute(this);
         return;
       }
@@ -1232,30 +846,6 @@ export default {
         []
       );
 
-      if (
-        this.selectedLanguage === "HTML5" ||
-        this.selectedLanguage === "Markdown" ||
-        this.selectedLanguage === "JQuery" ||
-        this.selectedLanguage === "AngularJS" ||
-        this.selectedLanguage === "React.js" ||
-        this.selectedLanguage === "Vue.js"
-      ) {
-        const con_html = document.getElementById("con-html");
-
-        if (this.selectedLanguage === "Markdown") {
-          this.renderMarkdown(this.editor.getValue());
-        } else {
-          con_html.innerHTML =
-            "<iframe id='iframe-html' frameborder='0' width='100%' height='100%' style='background:white;overflow-y:scroll; overflow-x:hidden;'></iframe>";
-          const iframe = document.getElementById("iframe-html");
-          iframe.srcdoc = this.editor.getValue();
-          con_html.style.overflowY = "hidden";
-        }
-
-        this.terminalTab = "tab-1";
-        return;
-      }
-
       if (!this.connected) {
         this.connect(() => {
           this.execute(isAll, command);
@@ -1270,20 +860,18 @@ export default {
       this.terminalTab = "tab-0";
       if (!command) {
         if (isAll) {
-          const ext = this.languages[this.selectedLanguage].ext;
+          const ext = languageConf.ext;
           let args =
             this.options[
-              `${this.languages[this.selectedLanguage].template}.args`
+              `${languageConf.template}.args`
             ];
 
           if (!args)
-            args = this.languages[this.selectedLanguage].args
-              ? this.languages[this.selectedLanguage].args
-              : "";
+            args = languageConf.args;
 
           command = (
             "cat << 'ARKSCRIPT_EOF' > {FILENAME}.{EXT}\n{SOURCE}\nARKSCRIPT_EOF\nhistory -c\n" +
-            this.languages[this.selectedLanguage].command
+            languageConf.command
           )
             .replace(/{ARGS}/g, args)
             .replace(/{FILENAME}/g, this.filename.replace(`.${ext}`, ""))
@@ -1357,46 +945,6 @@ export default {
         console.log(e);
       }
     },
-    removeImages: function () {
-      const con_image = document.getElementById("con-html");
-
-      con_image.innerHTML = "";
-    },
-    onChangeLanguage: function (language, isFirst) {
-      if (this.selectedLanguage != language)
-        this.sourceControl("tabs", language);
-
-      this.defaultFilename = this.languages[language].defaultFilename
-        ? this.languages[language].defaultFilename
-        : "main";
-      this.languageIcon = this.languages[language].icon;
-      this.selectedLanguage = language;
-      this.filename = this.defaultFilename;
-      this.befFileTab = this.defaultFilename;
-      this.editor.setScrollLeft(0);
-      this.editor.setScrollTop(0);
-      this.removeImages();
-      monaco.editor.setModelLanguage(
-        this.editor.getModel(),
-        this.languages[language].highlighting
-      );
-      this.editor.getModel().updateOptions({
-        insertSpaces:
-          this.languages[language].insertSpaces === false ? false : true,
-      });
-      this.optionControl("save");
-      const pathTo = "/pages/ide/" + this.languages[language].template;
-
-      if (
-        (!window.location.pathname.endsWith(".template") &&
-          !window.location.pathname.startsWith("/pages/shared") &&
-          window.location.pathname.indexOf("source:") === -1) ||
-        !isFirst
-      )
-        pathTo !== window.location.pathname && this.$router.push(pathTo);
-
-      this.$emit("navigate", this.languages[language].template);
-    },
     saveAs: function () {
       const text = this.editor.getValue();
 
@@ -1407,7 +955,7 @@ export default {
       );
       pom.setAttribute(
         "download",
-        `${this.filename}.${this.languages[this.selectedLanguage].ext}`
+        `${this.filename}.${languageConf.ext}`
       );
       pom.style.display = "none";
       document.body.appendChild(pom);
@@ -1484,6 +1032,8 @@ export default {
       glyphMargin: true,
     });
 
+    this.newTab("main");
+
     this.editor.addAction({
       id: "sendToTerminal",
       label: this.$t("sendToTerminal"),
@@ -1494,40 +1044,12 @@ export default {
     });
 
     this.editor.addAction({
-      id: "nextLanguage",
-      label: this.$t("nextLanguage"),
-      keybindings: [monaco.KeyCode.F2],
-      run: () => {
-        var keys = Object.keys(this.languages);
-        var index = keys.indexOf(this.selectedLanguage) + 1;
-
-        if (keys.length <= index) index = 0;
-
-        this.onChangeLanguage(keys[index]);
-      },
-    });
-
-    this.editor.addAction({
-      id: "prevLanguage",
-      label: this.$t("prevLanguage"),
-      keybindings: [monaco.KeyMod.Shift | monaco.KeyCode.F2],
-      run: () => {
-        var keys = Object.keys(this.languages);
-        var index = keys.indexOf(this.selectedLanguage) - 1;
-
-        if (0 > index) index = keys.length - 1;
-
-        this.onChangeLanguage(keys[index]);
-      },
-    });
-
-    this.editor.addAction({
       id: "execute",
       label: this.$t("run"),
       keybindings: [monaco.KeyCode.F9],
       run: () => {
         (!this.connected ||
-          (this.termStr && this.termStr.match(/.*(\$|#) $/i))) &&
+          (this.termStr && this.termStr.match(/.*([$#]) $/i))) &&
           this.executeCheck();
       },
     });
@@ -1554,20 +1076,17 @@ export default {
       run: () => {
         let args =
           this.options[
-            `${this.languages[this.selectedLanguage].template}.args`
+            `${languageConf.template}.args`
           ];
 
         if (!args)
-          args = this.languages[this.selectedLanguage].args
-            ? this.languages[this.selectedLanguage].args
-            : "";
+          args = languageConf.args;
 
-        this.languages[this.selectedLanguage].cli &&
-          this.termStr &&
-          this.termStr.match(/.*(\$|#) $/i) &&
+        this.termStr &&
+          this.termStr.match(/.*([$#]) $/i) &&
           this.execute(
             false,
-            this.languages[this.selectedLanguage].cli.replace(/{ARGS}/g, args)
+              languageConf.cli.replace(/{ARGS}/g, args)
           );
       },
     });
@@ -1582,24 +1101,6 @@ export default {
         );
         this.editor.updateOptions({ columnSelection: !mode });
         this.editor.setSelection(this.editor.getSelection());
-      },
-    });
-
-    this.editor.addAction({
-      id: "save",
-      label: this.$t("save"),
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S],
-      run: () => {
-        this.sourceControl("save", this.selectedLanguage);
-      },
-    });
-
-    this.editor.addAction({
-      id: "load",
-      label: this.$t("load"),
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_L],
-      run: () => {
-        this.sourceControl("open", this.selectedLanguage);
       },
     });
 
@@ -1645,8 +1146,8 @@ export default {
       id: "newTab",
       label: this.$t("newTab"),
       keybindings: [
-        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.N,
-        monaco.KeyMod.CtrlCmd | monaco.KeyCode.T,
+        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_N,
+        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_T,
       ],
       run: () => {
         this.newTab();
@@ -1660,9 +1161,7 @@ export default {
         monaco.KeyMod.CtrlCmd | monaco.KeyCode.F4,
         monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.F4,
       ],
-      run: () => {
-        this.closeTab();
-      },
+      run: () => { this.closeTab() },
     });
 
     this.editor.addAction({
@@ -1678,29 +1177,6 @@ export default {
             ? this.fileTabs.length - 1
             : this.fileTabIndex - 1;
         this.onChangeFileTab(this.fileTabIndex);
-      },
-    });
-
-    this.editor.addAction({
-      id: "copySourceHref",
-      label: this.$t("copySourceHref"),
-      keybindings: [
-        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.F10,
-      ],
-      run: () => {
-        const base_url = window.location.href.split("/").slice(0, 6).join("/");
-        const url = `${base_url}/source:${Buffer.from(
-          pako.deflate(this.editor.getValue())
-        )
-          .toString("base64")
-          .replace(/\//g, "_")}`;
-        if (url.length > 15000) this.showSnackbar(this.t("exceedSourceSize"));
-        else {
-          this.copyToClipboard(
-            `<a href="${url}" target="_blank">🚀 ${this.t("runSource")}</a>`
-          );
-          this.showSnackbar(this.t("hyperlinkCopied"));
-        }
       },
     });
 
@@ -1729,31 +1205,12 @@ export default {
     });
 
     this.editor.addAction({
-      id: "selectLanguageList",
-      label: this.$t("selectLanguageList"),
-      run: () => {
-        this.$refs.langList.$el.click();
-      },
-    });
-
-    this.editor.addAction({
       id: "options",
       label: this.$t("options"),
       run: () => {
         this.showSettingsDialog();
       },
     });
-
-    for (const language in this.languages) {
-      this.editor.addAction({
-        id: `${this.languages[language].template}`,
-        label: `${this.$t("selectLanguage")}: ${language}`,
-        run: () => {
-          this.onChangeLanguage(language);
-        },
-        keybindings: [this.languages[language].keyBindings],
-      });
-    }
 
     this.editor.focus();
 
@@ -1802,7 +1259,6 @@ export default {
 
     // Attach the handler
     resizer.addEventListener("mousedown", mouseDownHandler);
-    this.optionControl("load");
 
     window.onbeforeunload = () => {
       return "{{$t('terminate')}}";
@@ -1811,9 +1267,6 @@ export default {
     window.onload = () => {
       this.fitSize();
     };
-  },
-  created: function () {
-    this.languages = languages;
   },
 };
 </script>
@@ -1843,7 +1296,7 @@ export default {
   top: 10px;
   bottom: 10px;
   padding: 10px;
-  background-color: grey darken-4;
+  background-color: grey;
   overflow: auto;
   max-height: 100%;
 }
@@ -1864,18 +1317,6 @@ export default {
 }
 .resizer:hover {
   background-color: #0d47a1;
-}
-.v-autocomplete__content .v-list__tile {
-  height: 20px;
-}
-.decorationError {
-  background: rgba(255, 0, 0, 0.5);
-}
-.decorationErrorLine {
-  background: rgba(255, 220, 220, 0.2);
-}
-.decorationErrorLineDark {
-  background: rgba(70, 40, 40, 0.2);
 }
 ::-webkit-scrollbar {
   width: 8px;
