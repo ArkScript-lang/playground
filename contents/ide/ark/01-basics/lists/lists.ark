@@ -1,0 +1,13 @@
+ # the list is arkscript's only core collection data structure
+ # you can access and manipulate its contents with the 4 following methods
+
+ # let's prepare our list for the following exercises
+ # you can change the contents as long as they're
+ # quoted strings or numbers
+ (let our-list (list "te" "sting" 1 "2" 3 "last item"))
+
+ (mut current-list our-list)
+ (while (> (len current-list) 0) {
+     (print (head current-list))
+     (set current-list (tail current-list))
+ })

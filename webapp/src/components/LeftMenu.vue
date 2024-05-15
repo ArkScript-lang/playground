@@ -16,6 +16,7 @@
       </v-list-item>
     </template>
 
+    <!-- TODO make a component so that it be recursive with multiple folders -->
     <div v-for="submenu in menu.list" :key="submenu.name">
       <v-list dense v-if="submenu.type == 'd'" class="overflow-y-auto">
         <v-list-group

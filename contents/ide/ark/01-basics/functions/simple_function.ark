@@ -1,0 +1,10 @@
+# here's a function that greets a person
+# the following code takes a string as the name 
+(let greeter (fun (name)
+    # and it prints out a greeting!
+    (print "Hello, " name)    
+))
+
+# here's how we call the function
+(greeter "Bob")
+
