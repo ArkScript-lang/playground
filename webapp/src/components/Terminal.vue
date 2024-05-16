@@ -870,7 +870,7 @@ export default {
             args = languageConf.args;
 
           command = (
-            "cat << 'ARKSCRIPT_EOF' > {FILENAME}.{EXT}\n{SOURCE}\nARKSCRIPT_EOF\nhistory -c\n" +
+            "cat << 'ARKSCRIPT_EOF' > {FILENAME}.{EXT}\n{SOURCE}\nARKSCRIPT_EOF\n" +
             languageConf.command
           )
             .replace(/{ARGS}/g, args)

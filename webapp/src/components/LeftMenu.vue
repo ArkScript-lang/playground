@@ -3,13 +3,13 @@
     <template v-slot:prepend>
       <v-list-item two-line link>
         <v-list-item-avatar>
-          <img src="/contents/images/ryugod.png" />
+          <img src="/images/ryugod.png" />
         </v-list-item-avatar>
         <v-list-item-content>
-          <v-list-item-title @click="aboutMsg()">{{
+          <v-list-item-title>{{
             $t("app-title")
           }}</v-list-item-title>
-          <v-list-item-subtitle @click="aboutMsg()">{{
+          <v-list-item-subtitle>{{
             $t("about")
           }}</v-list-item-subtitle>
         </v-list-item-content>
@@ -80,56 +80,21 @@
         </v-list-item>
       </v-list>
     </div>
-    <div>
-      <ShowMessage ref="about" title="About"
-        ><div class="markdown-body" v-html="contents"></div
-      ></ShowMessage>
-    </div>
   </v-navigation-drawer>
 </template>
 
 <script>
-import axios from "axios";
-import ShowMessage from "./ShowMessage";
-
 export default {
   name: "LeftMenu",
-  components: {
-    ShowMessage,
-  },
-  methods: {
-    aboutMsg: function () {
-      const path = `/contents/about.md`;
-      this.getContents(path);
-      this.$refs["about"].show(800);
-    },
-    getContents: function (path) {
-      axios
-        .get(path, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-          },
-        })
-        .then((res) => {
-          this.contents = res.data;
-        })
-        .catch((err) => {
-          console.log(err);
-          this.contents = err;
-        });
-    },
-  },
   props: {
     menu: Object,
     dark: Boolean,
   },
   data() {
     return {
-      msg: true,
       visible: true,
       selected: null,
       contents: "",
-      about: false,
     };
   },
   watch: {

@@ -4,6 +4,7 @@
     "constants": "^0.0.2",
     "crypto": "^1.0.1",
     "express": "^4.19.2",
+    "express-rate-limit": "^7.2.0",
     "fs": "^0.0.1-security",
     "highlight.js": "^11.9.0",
     "http": "^0.0.1-security",

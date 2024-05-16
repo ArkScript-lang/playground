@@ -3,7 +3,6 @@
 const express = require('express')
 const serveIndex = require('serve-index')
 const pty = require('node-pty')
-const crypto = require('crypto')
 const {spawn} = require("child_process")
 const http = require('http')
 const websocket = require('ws')
@@ -19,7 +18,7 @@ const md = require('markdown-it')({
                     hljs.highlight(str, {language: lang}, true).value +
                     '</pre>';
             } catch (e) {
-                log.err(e.message)
+                console.error(e.message)
             }
         }
 
@@ -33,25 +32,33 @@ app.disable('x-powered-by')
 const base_dir = path.join(path.dirname(fs.realpathSync(__filename)))
 const port = 8081
 
+// set up rate limiter: maximum of five requests per minute
+const RateLimit = require('express-rate-limit');
+const limiter = RateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // max 100 requests per windowMs
+    validate: {xForwardedForHeader: false},
+});
+
+// apply rate limiter to all requests
+app.use(limiter);
+
 let dockerCount = 0
 
 md.use(mdi)
 
-app.use(express.static(base_dir + '/public'))
 app.use(express.json({limit: "1gb"}));
 app.use(express.urlencoded({limit: "1mb", extended: false}));
 app.use('/list', serveIndex(base_dir + '/contents'))
 
 const sendStatic = (req, res) => {
-    url = urlencode.decode(req.url)
+    let url = urlencode.decode(req.url)
     const path = base_dir + url
-
-    console.log('sendstatic', path)
 
     if (fs.existsSync(path)) {
         fs.readFile(path, function (err, data) {
             if (err)
-                console.err(err.message)
+                console.error(err.message)
             else {
                 res.send(data)
             }
@@ -61,30 +68,17 @@ const sendStatic = (req, res) => {
     }
 }
 
-hash = () => {
-    return crypto.createHmac('sha256', 'mysharedsource01').update(Date.now().toString()).digest('base64').replace('/', '_').substr(0, 10)
-}
-
-app.post('/', (req, res) => {
-    const path = base_dir + '/public/index.html'
-    res.sendFile(path)
-})
-
 app.get('/pages/?**', (req, res) => {
-    console.log(req.url)
-
     const path = base_dir + '/public/index.html'
     res.sendFile(path)
 })
 
 app.get('/list/*\.(md|template|png)$', (req, res) => {
-    console.log('/list', req.url)
-
     const url = urlencode.decode(req.url).replace('/list/', '/contents/')
     const path = base_dir + url
     console.log(path)
 
-    if (fs.existsSync(path, {encoding: 'utf-8'})) {
+    if (fs.existsSync(path)) {
         res.sendFile(path)
     } else {
         res.redirect(`/contents/404.md`)
@@ -92,43 +86,33 @@ app.get('/list/*\.(md|template|png)$', (req, res) => {
 })
 
 app.get('/contents/*\.(template)$', (req, res) => {
-    console.log('/contents', req.url)
-
     const url = urlencode.decode(req.url)
     const path = base_dir + url
     console.log(path)
 
-    if (fs.existsSync(path, {encoding: 'utf-8'})) {
+    if (fs.existsSync(path)) {
         res.sendFile(path)
     } else {
         res.redirect(`/contents/404.md`)
     }
 })
 
-app.get('*\.(png|js)$', (req, res) => {
-    console.log(req.url)
-
-    sendStatic(req, res)
-})
-
 app.get('*\.(md|md.html|template|template.html)$', (req, res) => {
-    console.log('/*', req.url)
-
     const url = urlencode.decode(req.url).replace(/\.html$/, '')
     const path = base_dir + url
     console.log(path)
 
-    if (fs.existsSync(path, {encoding: 'utf-8'})) {
-        stats = fs.statSync(path)
+    if (fs.existsSync(path)) {
+        let stats = fs.statSync(path)
         fs.readFile(path, 'utf8', function (err, data) {
             if (err)
-                console.err(err.message)
+                console.error(err.message)
             else {
                 if (url.match(/\.template(\.html)?$/)) {
                     data = `# ${url}\n` + '```\n' + data + '\n```'
                 }
-                const html = '<html>' +
-                    '<head>' +
+                const html = '<html lang="en">' +
+                    '<head></head>' +
                     '<body>' +
                     md.render(data) +
                     `<hr><sub><sup>Modified at ${stats.mtime}</sup></sub>` +
@@ -142,41 +126,27 @@ app.get('*\.(md|md.html|template|template.html)$', (req, res) => {
     }
 })
 
-app.get('*\.(html|jsls)$', (req, res) => {
-    console.log(req.url)
-
-    sendStatic(req, res)
-})
-
 app.get('/contents/?**', (req, res) => {
-    console.log(req.url)
-
     const url = urlencode.decode(req.url)
     const path = base_dir + url
-    var ret = {}
+    const ret = {};
 
-    if (fs.existsSync(path, {encoding: 'utf-8'})) {
-        stats = fs.lstatSync(path)
+    if (fs.existsSync(path)) {
+        let stats = fs.lstatSync(path)
         if (stats.isDirectory()) {
-
             fs.readdir(path, {encoding: 'utf-8'}, (err, files) => {
                 if (err) {
                     console.log(err)
                     res.send('Error')
                 }
 
-                if (path.match(/\/shared\//)) {
-                    res.send('')
-                    return
-                }
-
-                file_list = []
+                let file_list = []
                 files.sort()
                 files.map(file => {
                     stats = fs.lstatSync(path + '/' + file)
-                    isDir = stats.isDirectory()
+                    let isDir = stats.isDirectory()
                     if (isDir || file.endsWith('\.md') || file.endsWith('\.template')) {
-                        subfiles = isDir ? fs.readdirSync(path + '/' + file, {encoding: 'utf-8'}) : []
+                        let subfiles = isDir ? fs.readdirSync(path + '/' + file, {encoding: 'utf-8'}) : []
                         subfiles.sort()
                         subfiles = subfiles.filter(f => f.endsWith('\.md') || f.endsWith('\.template'))
                         file_list.push({name: file, type: isDir ? "d" : "f", list: subfiles})
@@ -221,9 +191,9 @@ websocketServer.on('connection', (ws, req) => {
     docker_seq = docker_seq > 99999999 ? 0 : docker_seq + 1
     const docker_name = 'RS' + `0000000${docker_seq}`.slice(-8)
 
-    var ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    var lang = req.headers["accept-language"]
-    var locale = 'C'
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
+    const lang = req.headers["accept-language"]
+    const locale = 'C'
     console.log(new Date().toString(), 'connected...', ip, docker_name, lang)
 
     const child = pty.spawn('docker', [
@@ -231,20 +201,12 @@ websocketServer.on('connection', (ws, req) => {
         '--env',
         `LANG=${locale}.UTF-8`,
         '--env',
-        'TMOUT=1200',
-        '--env',
         `DOCKER_NAME=${docker_name}`,
         '-it',
         '--name',
         docker_name,
         '--rm',
         '--entrypoint=/bin/sh',
-        //'--workdir',
-        //'/home/ryugod',
-        //'--user',
-        //'ryugod',
-        //'--hostname',
-        //'ryugod-server',
         'arkscript/nightly',
     ], {
         name: 'xterm-color',
@@ -279,12 +241,12 @@ websocketServer.on('connection', (ws, req) => {
         }
     })
     ws.on('close', (e) => {
-        spawn('docker', ['kill', docker_name]).on('close', code => {
+        spawn('docker', ['kill', docker_name]).on('close', () => {
             console.log('socket closed...', new Date().toString(), docker_name, child.pid, e)
         })
     })
     ws.on('error', (err) => {
-        console.log('error occured', err)
+        console.log('error occurred', err)
     })
     ws.on('pong', () => {
         ws.isAlive = true
