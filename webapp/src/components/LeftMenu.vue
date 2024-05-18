@@ -3,7 +3,7 @@
     <template v-slot:prepend>
       <v-list-item two-line link>
         <v-list-item-avatar>
-          <img src="/images/ryugod.png" />
+          <img src="/images/Ark-full.png" />
         </v-list-item-avatar>
         <v-list-item-content>
           <v-list-item-title>{{
