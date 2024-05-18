@@ -3,9 +3,7 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 module.exports = {
   devServer: {
-    disableHostCheck: true,
     host: '0.0.0.0',
-    overlay: false,
     proxy: {
       '/contents': {
         target: 'http://host.docker.internal:8081',
