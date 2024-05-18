@@ -7,21 +7,6 @@
           @click="$emit('toggleMenu')"
         ></v-app-bar-nav-icon>
         <v-tooltip bottom>
-          <span>{{ $t("connect") }}</span>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              text
-              x-small
-              @click="connect"
-              v-bind="attrs"
-              v-on="on"
-              :disabled="connected"
-            >
-              <v-icon dense color="green">mdi-lan-connect</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-        <v-tooltip bottom>
           <span>{{ $t("disconnect") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
@@ -37,55 +22,17 @@
           </template>
         </v-tooltip>
         <v-tooltip bottom>
-          <span>{{ $t("repl") }}</span>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              text
-              x-small
-              :disabled="
-                !(
-                  termStr &&
-                  termStr.match(/.*([$#]) $/i)
-                )
-              "
-              @click="editor.focus(), editor.trigger('', 'repl')"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon dense color="green">mdi-code-greater-than</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-        <v-tooltip bottom>
           <span>{{ $t("run") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
               text
               x-small
-              :disabled="
-                !(!connected || (termStr && termStr.match(/.*([$#]) $/i)))
-              "
+              :disabled="connected"
               @click="executeCheck()"
               v-bind="attrs"
               v-on="on"
             >
               <v-icon dense color="green">mdi-play</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <span>{{ $t("sendToTerminal") }}</span>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              text
-              color="green"
-              x-small
-              @click="execute()"
-              v-bind="attrs"
-              v-on="on"
-              :disabled="!connected"
-            >
-              <v-icon dense>mdi-playlist-play</v-icon>
             </v-btn>
           </template>
         </v-tooltip>
@@ -120,20 +67,6 @@
           <template v-slot:activator="{ on, attrs }">
             <v-btn text x-small @click="saveAs()" v-bind="attrs" v-on="on">
               <v-icon dense>mdi-export</v-icon>
-            </v-btn>
-          </template>
-        </v-tooltip>
-        <v-tooltip bottom>
-          <span>{{ $t("options") }}</span>
-          <template v-slot:activator="{ on, attrs }">
-            <v-btn
-              text
-              x-small
-              @click="showSettingsDialog"
-              v-bind="attrs"
-              v-on="on"
-            >
-              <v-icon dense>mdi-tools</v-icon>
             </v-btn>
           </template>
         </v-tooltip>
@@ -288,7 +221,7 @@
       <v-tabs-items v-model="terminalTab" color="black">
         <v-tab-item key="0" value="tab-0">
           <div id="con-terminal" class="con-bottom">
-            <div id="terminal" @drop="onDrop" @dragover="onDragOver"></div>
+            <div id="terminal"></div>
           </div>
         </v-tab-item>
       </v-tabs-items>
@@ -316,7 +249,6 @@
         </v-btn>
       </template>
     </v-snackbar>
-    <Settings ref="settingsDialog" @saveOptions="saveOptions"> </Settings>
   </div>
 </template>
 
@@ -330,7 +262,6 @@ import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
 
 import axios from "axios";
-import Settings from "./Settings";
 
 export default {
   name: "Terminal",
@@ -338,10 +269,6 @@ export default {
     languageConf() {
       return languageConf
     }
-  },
-
-  components: {
-    Settings,
   },
   props: {
     dark: Boolean,
@@ -363,7 +290,6 @@ export default {
     befHeight: 0,
     snackbar: false,
     snackbar_message: "",
-    termStr: "",  // todo remove
     fullTerminal: false,
     contents: "",
     options: { tabSize: 4, dark: true },
@@ -383,32 +309,6 @@ export default {
     },
   },
   methods: {
-    showSettingsDialog: function () {
-      const options = {
-        dark: this.$vuetify.theme.dark,
-        tabSize: this.editor.getModel().getOptions()["tabSize"],
-        fontSize: this.editor.getOption(monaco.editor.EditorOption.fontSize),
-        args: this.options[
-          `${languageConf.template}.args`
-        ]
-          ? this.options[
-              `${languageConf.template}.args`
-            ]
-          : languageConf.args,
-      };
-
-      this.$refs["settingsDialog"].show(options);
-    },
-    saveOptions: function (options) {
-      if (options) {
-        this.$vuetify.theme.dark = options.dark;
-        this.editor.updateOptions({ fontSize: options.fontSize });
-        this.editor.getModel().updateOptions({ tabSize: options.tabSize });
-        this.options[`${languageConf.template}.args`] =
-          options.args;
-      }
-      this.showSnackbar(this.$t("savedOptions"));
-    },
     showSnackbar: function (msg) {
       this.snackbar_message = msg;
       this.snackbar = true;
@@ -530,26 +430,6 @@ export default {
       this.editor.setScrollTop(0);
       this.editor.focus();
     },
-    sendFile: function (file) {
-      if (file.size > 1024 * 1024 * 10) {
-        this.showSnackbar(
-          `ℹ️  최대 10M까지 가능합니다(${file.name}, ${file.size}바이트)`
-        );
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (this.connected) {
-          this.ws.send(
-            `1\n# ℹ️  ${file.name} 파일을 전송합니다(${file.size}bytes). 완료될 때까지 기다려 주세요...\n` +
-              `cat << 'ARKSCRIPT_EOF' | sed s/.*,// | base64 -d > '${file.name}'\n` +
-              event.target.result +
-              `\nARKSCRIPT_EOF\r\n# ℹ️  ${file.name} 전송완료\n`
-          );
-        }
-      };
-      reader.readAsDataURL(file);
-    },
     importFile: function () {
       const input = document.createElement("input");
       input.type = "file";
@@ -620,33 +500,6 @@ export default {
     },
     dragOverHandler: function (ev) {
       ev.preventDefault();
-    },
-    onDrop: function (e) {
-      if (!this.connected) {
-        this.showSnackbar("");
-        return;
-      }
-
-      if (!(this.termStr && this.termStr.match(/.*([$#]) $/i))) {
-        this.showSnackbar("Can not upload file: currently not in shell");
-        return;
-      }
-      e.preventDefault();
-
-      if (e.dataTransfer.items) {
-        for (let index = 0; index < e.dataTransfer.items.length; index++) {
-          if (e.dataTransfer.items[index].kind === "file") {
-            this.sendFile(e.dataTransfer.items[index].getAsFile());
-          }
-        }
-      } else {
-        for (let index = 0; index < e.dataTransfer.files.length; index++) {
-          this.sendFile(e.dataTransfer.files[index]);
-        }
-      }
-    },
-    onDragOver: (e) => {
-      e.preventDefault();
     },
     getContents: function (path) {
       axios
@@ -742,7 +595,6 @@ export default {
 
       const term = vm.term;
       term.clear();
-      term.write(this.$t("connectToServer").toString());
 
       const ws = new WebSocket(`ws://localhost:8081/terminal`);
 
@@ -793,22 +645,18 @@ export default {
     },
     executeCheck: function (command) {
       if (command) {
-        this.execute(this, command);
+        this.execute(command);
       }
 
-      if (!languageConf.command) {
-        this.execute(this);
-        return;
-      }
       if (!this.connected) {
         this.connect(() => {
           this.executeCheck();
         });
         return;
       }
-      this.execute(this, command);
+      this.execute(command);
     },
-    execute: function (isAll, command) {
+    execute: function (command) {
       this.decorations = [];
       this.befDecorations = this.editor.deltaDecorations(
         this.befDecorations,
@@ -817,49 +665,14 @@ export default {
 
       if (!this.connected) {
         this.connect(() => {
-          this.execute(isAll, command);
+          this.execute(command);
         });
         return;
       }
-      const selected = this.editor.getSelection();
-      const selectedText = command
-        ? command
-        : this.editor.getModel().getValueInRange(selected);
 
       this.terminalTab = "tab-0";
       if (!command) {
-        if (isAll) {
-          const ext = languageConf.ext;
-          let args =
-            this.options[
-              `${languageConf.template}.args`
-            ];
-
-          if (!args)
-            args = languageConf.args;
-
-          command = (
-            "cat << 'ARKSCRIPT_EOF' > {FILENAME}.{EXT}\n{SOURCE}\nARKSCRIPT_EOF\n" +
-            languageConf.command
-          )
-            .replace(/{ARGS}/g, args)
-            .replace(/{FILENAME}/g, this.filename.replace(`.${ext}`, ""))
-            .replace(/{EXT}/g, ext)
-            .replace("{SOURCE}", this.editor.getValue())
-            .replace(/\t/g, "    ");
-        } else if (selectedText) {
-          command = selectedText;
-        } else {
-          if (selected["startLineNumber"]) {
-            command = this.editor
-              .getModel()
-              .getLineContent(selected["startLineNumber"]);
-            this.editor.setPosition({
-              column: 0,
-              lineNumber: selected["startLineNumber"] + 1,
-            });
-          }
-        }
+        command = this.editor.getValue();
       }
 
       if (this.connected) {
@@ -1004,22 +817,11 @@ export default {
     this.newTab("main");
 
     this.editor.addAction({
-      id: "sendToTerminal",
-      label: this.$t("sendToTerminal"),
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter],
-      run: () => {
-        this.execute();
-      },
-    });
-
-    this.editor.addAction({
       id: "execute",
       label: this.$t("run"),
       keybindings: [monaco.KeyCode.F9],
       run: () => {
-        (!this.connected ||
-          (this.termStr && this.termStr.match(/.*([$#]) $/i))) &&
-          this.executeCheck();
+        (!this.connected) && this.executeCheck();
       },
     });
 
@@ -1036,27 +838,6 @@ export default {
       label: this.$t("disconnect"),
       run: () => {
         this.disconnect();
-      },
-    });
-
-    this.editor.addAction({
-      id: "repl",
-      label: this.$t("repl"),
-      run: () => {
-        let args =
-          this.options[
-            `${languageConf.template}.args`
-          ];
-
-        if (!args)
-          args = languageConf.args;
-
-        this.termStr &&
-          this.termStr.match(/.*([$#]) $/i) &&
-          this.execute(
-            false,
-              languageConf.cli.replace(/{ARGS}/g, args)
-          );
       },
     });
 
@@ -1100,14 +881,6 @@ export default {
       ],
       run: () => {
         this.editor.trigger("F1", "editor.action.quickCommand");
-      },
-    });
-
-    this.editor.addAction({
-      id: "saveOptions",
-      label: this.$t("saveOptions"),
-      run: () => {
-        this.saveOptions();
       },
     });
 
@@ -1170,14 +943,6 @@ export default {
       label: this.$t("toggleTheme"),
       run: () => {
         this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
-      },
-    });
-
-    this.editor.addAction({
-      id: "options",
-      label: this.$t("options"),
-      run: () => {
-        this.showSettingsDialog();
       },
     });
 
