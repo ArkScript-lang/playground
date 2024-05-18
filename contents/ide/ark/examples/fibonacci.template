@@ -8,4 +8,4 @@
         n
         (+ (fibo (- n 1)) (fibo (- n 2))))))
 
-(print (fibo 28))  # display 317811
+(print (fibo 10))  # display 55
