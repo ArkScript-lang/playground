@@ -613,11 +613,8 @@ export default {
 
         switch (d.data[0]) {
           case "1":
-            vm.termStr = data.substr(-10);
             term.write(data);
-
             this.decoration(data);
-
             break;
           case "2":
             vm.count = data;
@@ -631,7 +628,7 @@ export default {
       };
 
       ws.onclose = () => {
-        vm.term.write(`\r\n${this.$t("disconnected")}\r\n\r\n`);
+        vm.term.write(`\n${this.$t("disconnected")}\n`);
         vm.ws = null;
         vm.connected = false;
         this.count = null;
@@ -778,7 +775,7 @@ export default {
 
     this.term.onData((data) => {
       if (this.connected) {
-        this.ws.send("1" + data);
+        this.ws.send("3" + data);
       }
     });
 
