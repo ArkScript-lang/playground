@@ -353,27 +353,20 @@ export default {
     tabMenu: false,
     x: 0,
     y: 0,
-    tabMenus: null,
-    filter: "",
-    dispose: null,
+    tabMenus: null,  // todo: needed?
     befDecorations: [],
     decorations: [],
     befFileTab: null,
     fileTabIndex: null,
     fileTabs: [],
-    langMenu: false,
     terminalTab: "tab-0",
     befHeight: 0,
     snackbar: false,
     snackbar_message: "",
-    termStr: "",
+    termStr: "",  // todo remove
     fullTerminal: false,
     contents: "",
-    languageIcon: "mdi-code-parentheses",
-    QRCode: "",
-    sharedURL: "",
     options: { tabSize: 4, dark: true },
-    sharedHash: String,
     fitAddon: new FitAddon(),
     connected: false,
     count: null,
@@ -763,32 +756,8 @@ export default {
         if (typeof callback === "function") callback();
       };
 
-      const HEREDOC_BEGIN = "cat << 'ARKSCRIPT_EOF'";
-      const regex = /ARKSCRIPT_EOF(?!')/;
-      let isHereDoc = false;
-
       ws.onmessage = (d) => {
         const data = d.data.substring(1);
-
-        if (isHereDoc) {
-          if (regex.exec(data) !== null) {
-            isHereDoc = false;
-            const last = data.toString().split(regex);
-            if (last[1]) {
-              vm.termStr = last[1];
-              term.write(last[1]);
-            }
-          }
-          return;
-        }
-
-        if (data.indexOf(HEREDOC_BEGIN) !== -1) {
-          if (regex.exec(data) === null) {
-            isHereDoc = true;
-            term.write(this.$t("uploadingFile").toString());
-          }
-          return;
-        }
 
         switch (d.data[0]) {
           case "1":
