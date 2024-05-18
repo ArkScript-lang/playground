@@ -1,0 +1,7 @@
+{
+  "path": "/contents/ide/ark/",
+  "list": [
+    {"name": "hello_world.template", "type": "f", "list": []},
+    {"name": "examples", "type": "d", "list": ["100_bottles_of_beer.template", "fibonacci.template"]}
+  ]
+}
