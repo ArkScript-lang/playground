@@ -107,7 +107,7 @@
             active-class="indigo darken-4 white--text"
             depressed
             @click="toggle"
-            @contextmenu="toggle(), tabContaxMenu($event)"
+            @contextmenu="toggle()"
             style="text-transform: none !important"
           >
             <v-text-field
@@ -226,21 +226,6 @@
         </v-tab-item>
       </v-tabs-items>
     </div>
-    <v-menu v-model="tabMenu" :position-x="x" :position-y="y" absolute offset-y>
-      <v-list dense>
-        <v-list-item
-          v-for="(item, index) in tabMenus"
-          :key="index"
-          link
-          @click="contextMenuClick(item.id)"
-        >
-          <v-list-item-title class="caption"
-            ><v-icon>{{ item.icon }}</v-icon
-            >{{ item.title }}</v-list-item-title
-          >
-        </v-list-item>
-      </v-list>
-    </v-menu>
     <v-snackbar v-model="snackbar" :timeout="4000">
       {{ snackbar_message }}
       <template v-slot:action="{ attrs }">
@@ -278,9 +263,6 @@ export default {
     defaultFilename: "main",
     renaming: false,
     tabMenu: false,
-    x: 0,
-    y: 0,
-    tabMenus: null,  // todo: needed?
     befDecorations: [],
     decorations: [],
     befFileTab: null,
@@ -312,15 +294,6 @@ export default {
     showSnackbar: function (msg) {
       this.snackbar_message = msg;
       this.snackbar = true;
-    },
-    tabContaxMenu: function (e) {
-      e.preventDefault();
-      this.tabMenu = false;
-      this.x = e.clientX;
-      this.y = e.clientY;
-      this.$nextTick(() => {
-        this.tabMenu = true;
-      });
     },
     contextMenuClick: function (e) {
       switch (e) {

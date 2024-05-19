@@ -51,7 +51,7 @@ websocketServer.on('connection', (ws, req) => {
         docker_name,
         '--rm',
         '--entrypoint=/bin/sh',
-        '--volume=/tmp:/tmp',
+        '--volume=/tmp/playground:/tmp',
         '--memory=16M',
         '--pids-limit=50',
         '--stop-timeout=30',  // 30 seconds before shutoff
@@ -108,8 +108,10 @@ websocketServer.on('connection', (ws, req) => {
             case '1':
                 if (message) {
                     const msg = decoded.slice(1)
-                    // todo do we want to use /tmp?
-                    fs.writeFileSync(`/tmp/${docker_seq}.ark`, msg, {encoding: 'utf8', flag: 'w', flush: true,});
+                    fs.writeFileSync(
+                        `/tmp/playground/${docker_seq}.ark`,
+                        msg.replace("sys:exec", "print"),
+                        {encoding: 'utf8', flag: 'w', flush: true,});
                     child.write(`arkscript /tmp/${docker_seq}.ark; exit\n`);
                     ws.hasShell = true;
                 }

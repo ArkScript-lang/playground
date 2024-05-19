@@ -13,15 +13,13 @@ const conf = {
         {open: '{', close: '}'},
         {open: '[', close: ']'},
         {open: '(', close: ')'},
-        {open: '"', close: '"', notIn: ['string']},
-        {open: "'", close: "'", notIn: ['string', 'comment']}
+        {open: '"', close: '"', notIn: ['string']}
     ],
     surroundingPairs: [
         {open: '{', close: '}'},
         {open: '[', close: ']'},
         {open: '(', close: ')'},
-        {open: '"', close: '"'},
-        {open: "'", close: "'"}
+        {open: '"', close: '"'}
     ],
     folding: {
         offSide: true,
@@ -45,6 +43,7 @@ const language = {
         'set',
         'while',
     ],
+    // todo update the list
     builtins: [
         'reverseList',
         'findInList',
@@ -126,7 +125,7 @@ const language = {
             [/\s+/, 'white'],
             [/(#.*$)/, 'comment'],
         ],
-        // Recognize hex, negatives, decimals, imaginaries, longs, and scientific notation
+        // Recognize hex, negatives, decimals, imaginary numbers, longs, and scientific notation
         numbers: [
             [/-?0x([abcdef]|[ABCDEF]|\d)+[lL]?/, 'number.hex'],
             [/-?(\d*\.)?\d+([eE][+-]?\d+)?[jJ]?[lL]?/, 'number']

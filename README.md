@@ -18,6 +18,7 @@ npm run serve
 Run the websocket (necessary to boot docker containers to run ArkScript code):
 ```shell
 npm i
+mkdir -p /tmp/playground
 node app.js
 ```
 
