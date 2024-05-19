@@ -69,7 +69,7 @@ websocketServer.on('connection', (ws, req) => {
         '--cap-drop=SETPCAP',
         '--cap-drop=SETUID',
         '--cap-drop=SYS_CHROOT',
-        'arkscript/nightly',
+        'arkscript/harden',
     ], {
         name: 'xterm-color',
     });
@@ -111,7 +111,7 @@ websocketServer.on('connection', (ws, req) => {
                     const msg = decoded.slice(1);
                     fs.writeFileSync(
                         `/tmp/playground/${docker_seq}.ark`,
-                        msg.replace("sys:exec", "print"),
+                        msg,
                         {encoding: 'utf8', flag: 'w', flush: true,});
                     child.write(command);
                     ws.hasShell = true;
