@@ -2,15 +2,6 @@ const MonacoLocalesPlugin = require('monaco-editor-locales-plugin')
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 module.exports = {
-  devServer: {
-    host: '0.0.0.0',
-    proxy: {
-      '/contents': {
-        target: 'http://host.docker.internal:8081',
-        changeOrigin: true
-      }
-    }
-  },
   chainWebpack: config => {
     config.plugin('monaco-editor').use(MonacoWebpackPlugin, [
       {

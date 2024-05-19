@@ -7,30 +7,9 @@ const {spawn} = require("child_process")
 const http = require('http')
 const websocket = require('ws')
 
-const default_files = require('./default_files.json')
-
 const app = express()
 app.disable('x-powered-by')
 const port = 8081;
-
-// set up rate limiter: maximum of five requests per minute
-const RateLimit = require('express-rate-limit');
-const limiter = RateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // max 100 requests per windowMs
-    validate: {xForwardedForHeader: false},
-});
-
-// apply rate limiter to all requests
-app.use(limiter);
-
-app.use(express.json({limit: "1gb"}));
-app.use(express.urlencoded({limit: "1mb", extended: false}));
-
-app.use('/contents', express.static('contents'));
-app.get('/contents/ide/ark/', (req, res) => {
-    res.send(default_files);
-});
 
 const server = http.createServer(app).listen(port, () => {
     console.log(`app listening at http://localhost:${port}`)

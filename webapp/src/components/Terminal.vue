@@ -596,7 +596,7 @@ export default {
       const term = vm.term;
       term.clear();
 
-      const ws = new WebSocket(`ws://localhost:8081/terminal`);
+      const ws = new WebSocket(process.env.VUE_APP_WEBSOCKET);
 
       ws.onopen = () => {
         term.write(this.$t("connected").toString());

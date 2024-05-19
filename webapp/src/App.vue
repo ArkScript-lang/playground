@@ -63,17 +63,6 @@ export default {
     onTerminalCount: function (count) {
       this.termCount = count;
     },
-    loadMenu() {
-      axios
-        .get(`/contents/ide/ark/`)
-        .then((res) => {
-          if (res.data) this.menu = res.data;
-        })
-        .catch((err) => {
-          console.log(err);
-          this.menu = err;
-        });
-    },
     navigate: function (template) {
       const html = document.getElementsByTagName("html")[0];
       const event = new CustomEvent("scroll", {});
@@ -84,7 +73,6 @@ export default {
       html.dispatchEvent(event);
       html.style.overflowY = "hidden";
 
-      this.loadMenu();
       if (
         !window.location.href.endsWith(".template") &&
         !window.location.href.split("/").pop().startsWith("source:")
@@ -98,7 +86,7 @@ export default {
     this.$i18n.locale = "en";
     const path = this.$route.params.app_path;
 
-    this.loadMenu();
+    this.menu = require('./ark_ide.json');
 
     if (path && path.endsWith(".template")) {
         this.navigate(path.replace("ide/ark/", ""));
