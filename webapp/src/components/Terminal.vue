@@ -172,7 +172,7 @@
         <v-spacer></v-spacer>
         <v-layout justify-end="true">
           <v-tooltip bottom>
-            <span>{{ $t("decreasePannel") }}</span>
+            <span>{{ $t("decreasePanel") }}</span>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
@@ -186,7 +186,7 @@
             </template>
           </v-tooltip>
           <v-tooltip bottom>
-            <span>{{ $t("increasePannel") }}</span>
+            <span>{{ $t("increasePanel") }}</span>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
                 icon
@@ -201,7 +201,7 @@
           </v-tooltip>
           <v-tooltip bottom>
             <span>{{
-              fullTerminal ? $t("restorePannel") : $t("maximizePannel")
+              fullTerminal ? $t("restorePanel") : $t("maximizePanel")
             }}</span>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
@@ -245,8 +245,6 @@ import { languageConf } from './arkscript';
 
 import { Terminal } from "xterm";
 import { FitAddon } from "xterm-addon-fit";
-
-import axios from "axios";
 
 export default {
   name: "Terminal",
@@ -474,21 +472,6 @@ export default {
     dragOverHandler: function (ev) {
       ev.preventDefault();
     },
-    getContents: function (path) {
-      axios
-        .get(path, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
-          },
-        })
-        .then((res) => {
-          this.contents = res.data;
-        })
-        .catch((err) => {
-          console.log(err);
-          this.contents = err;
-        });
-    },
     toggleTermScreen: function () {
       const monaco = document.getElementById("monaco");
 
@@ -572,8 +555,10 @@ export default {
       const ws = new WebSocket(process.env.VUE_APP_WEBSOCKET);
 
       ws.onopen = () => {
-        term.write(this.$t("connected").toString());
-        term.write(this.$t("pleaseWait").toString());
+        term.writeln(this.$t("connectToServer").toString());
+        term.writeln(this.$t("pleaseWait").toString());
+        term.writeln("");
+
         vm.ws = ws;
         vm.connected = true;
         ws.send(`2 ${term.cols} ${term.rows}`);
@@ -598,9 +583,12 @@ export default {
       ws.onerror = function (ev) {
         console.log(ev);
         term.write(ev);
+        ws.close();
       };
 
       ws.onclose = () => {
+        term.writeln("");
+        term.writeln(this.$t("disconnected").toString());
         vm.ws = null;
         vm.connected = false;
         this.count = null;
@@ -757,8 +745,7 @@ export default {
       }
     });
 
-    const banner = this.$t("banner").replaceAll("ANSI", "\x1b[");
-    this.term.write(banner);
+    this.term.writeln(this.$t("banner"));
 
     window.addEventListener("resize", this.fitSize);
     const divMonaco = document.getElementById("monaco");
@@ -813,7 +800,7 @@ export default {
     this.editor.addAction({
       id: "columnMode",
       label: this.$t("columnMode"),
-      keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KEY_C],
+      keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyC],
       run: () => {
         const mode = this.editor.getOption(
           monaco.editor.EditorOption.columnSelection
@@ -826,7 +813,7 @@ export default {
     this.editor.addAction({
       id: "import",
       label: this.$t("import"),
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_O],
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyO],
       run: () => {
         this.importFile();
       },
@@ -835,7 +822,7 @@ export default {
     this.editor.addAction({
       id: "export",
       label: this.$t("export"),
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_E],
+      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyS],
       run: () => {
         this.saveAs();
       },
@@ -846,7 +833,7 @@ export default {
       label: this.$t("commandPalette"),
       keybindings: [
         monaco.KeyCode.F1,
-        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P,
+        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyP,
       ],
       run: () => {
         this.editor.trigger("F1", "editor.action.quickCommand");
@@ -857,8 +844,8 @@ export default {
       id: "newTab",
       label: this.$t("newTab"),
       keybindings: [
-        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_N,
-        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_T,
+        monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KeyN,
+        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyT,
       ],
       run: () => {
         this.newTab();
