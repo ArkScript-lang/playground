@@ -1,18 +1,16 @@
-#!/usr/local/bin/node
+const express = require('express');
+const pty = require('node-pty');
+const fs = require('fs');
+const {spawn} = require("child_process");
+const http = require('http');
+const websocket = require('ws');
 
-const express = require('express')
-const pty = require('node-pty')
-const fs = require('fs')
-const {spawn} = require("child_process")
-const http = require('http')
-const websocket = require('ws')
-
-const app = express()
-app.disable('x-powered-by')
+const app = express();
+app.disable('x-powered-by');
 const port = 8081;
 
 const server = http.createServer(app).listen(port, () => {
-    console.log(`app listening at http://localhost:${port}`)
+    console.log(`app listening at http://localhost:${port}`);
 });
 
 const websocketServer = new websocket.Server({server, path: '/terminal'});
@@ -23,22 +21,23 @@ setInterval(function ping() {
             if (socket.isAlive === false) return socket.terminate()
 
             socket.isAlive = false;
-            socket.ping(websocketServer.clients.size)
-            socket.send('2' + websocketServer.clients.size)
-        })
+            socket.ping(websocketServer.clients.size);
+            socket.send('2' + websocketServer.clients.size);
+        });
     }
-}, 5000)
+}, 5000);
 
-let dockerCount = 0
-let docker_seq = 0
+let dockerCount = 0;
+let docker_seq = 0;
 
 websocketServer.on('connection', (ws, req) => {
-    docker_seq = docker_seq > 99999999 ? 0 : docker_seq + 1
-    const docker_name = `RS0000000${docker_seq}`.slice(-8)
+    docker_seq = docker_seq > 99999999 ? 0 : docker_seq + 1;
+    const docker_name = `RS0000000${docker_seq}`.slice(-8);
+    const command = `arkscript /tmp/${docker_seq}.ark; exit\n`;
 
-    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress
-    const lang = req.headers["accept-language"]
-    console.log(new Date().toString(), 'connected...', ip, docker_name, lang)
+    const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const lang = req.headers["accept-language"];
+    console.log(new Date().toString(), 'connected...', ip, docker_name, lang);
 
     ws.hasShell = false;
 
@@ -73,20 +72,22 @@ websocketServer.on('connection', (ws, req) => {
         'arkscript/nightly',
     ], {
         name: 'xterm-color',
-    })
-    console.log('forking docker: ', docker_name, child.pid)
-    dockerCount++
+    });
+    console.log('forking docker: ', docker_name, child.pid);
+    dockerCount++;
 
     child.onData((data) => {
         // send the shell output only if code was submitted
-        if (ws.hasShell)
-            ws.send('1' + data.toString())
-    })
+        const text = data.toString();
+        if (ws.hasShell) {
+            ws.send('1' + text);
+        }
+    });
     child.onExit((code) => {
-        ws.close()
-        dockerCount--
-        console.log('child closed', docker_name, child.pid, code)
-    })
+        ws.close();
+        dockerCount--;
+        console.log('child closed', docker_name, child.pid, code);
+    });
 
     const isAuthorizedChar = (char) => {
         const codepoint = char.charCodeAt(0);
@@ -107,19 +108,19 @@ websocketServer.on('connection', (ws, req) => {
             // file
             case '1':
                 if (message) {
-                    const msg = decoded.slice(1)
+                    const msg = decoded.slice(1);
                     fs.writeFileSync(
                         `/tmp/playground/${docker_seq}.ark`,
                         msg.replace("sys:exec", "print"),
                         {encoding: 'utf8', flag: 'w', flush: true,});
-                    child.write(`arkscript /tmp/${docker_seq}.ark; exit\n`);
+                    child.write(command);
                     ws.hasShell = true;
                 }
                 break;
             // resize
             case '2':
-                const size = decoded.split(' ')
-                child.resize(parseInt(size[1]), parseInt(size[2]))
+                const size = decoded.split(' ');
+                child.resize(parseInt(size[1]), parseInt(size[2]));
                 break;
             // user input
             case '3':
@@ -134,12 +135,12 @@ websocketServer.on('connection', (ws, req) => {
     ws.on('close', (e) => {
         spawn('docker', ['kill', docker_name]).on('close', () => {
             console.log('socket closed...', new Date().toString(), docker_name, child.pid, e);
-        })
-    })
+        });
+    });
     ws.on('error', (err) => {
         console.log('error occurred', err);
-    })
+    });
     ws.on('pong', () => {
         ws.isAlive = true;
-    })
-})
+    });
+});
