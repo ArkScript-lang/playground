@@ -9,15 +9,14 @@ import i18n from '@/plugins/i18n'
 Vue.config.productionTip = false
 
 const router = new VueRouter({
-  mode: 'history',
-  routes: [
-    {path: '/pages/:app_path*', component: App}
-  ]
+    routes: [
+        {path: '/pages/:app_path*', component: App}
+    ]
 });
 
 new Vue({
-  vuetify,
-  router,
-  render: h => h(App),
-  i18n
+    vuetify,
+    router,
+    render: h => h(App),
+    i18n
 }).$mount('#app')
