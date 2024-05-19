@@ -6,13 +6,7 @@
  # quoted strings or numbers
  (let our-list (list "te" "sting" 1 "2" 3 "last item"))
 
- (let recurse-list (fun (lst) {
-     (if (= (len lst) 0) 
-        nil
-        {
-            (print (head lst))
-            (recurse-list (tail lst))
-        })
- }))
- 
- (recurse-list our-list)
+ (mut current-list our-list)
+ (while (> (len current-list) 0) {
+     (print (head current-list))
+     (set current-list (tail current-list)) })

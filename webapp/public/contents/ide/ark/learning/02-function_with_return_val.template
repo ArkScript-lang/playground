@@ -1,11 +1,10 @@
 # this function takes 2 numbers and returns their sum
 (let adder (fun (num1 num2)
-    (+ num1 num2)
-))
+    (+ num1 num2)))
 
 # let's assign some number variables for our function
 (let num1 9)
 (let num2 5)
 
 # and use them with our adder function to get the sum
-(print num1 " + " num2 " = " (adder num1 num2))
+(print (str:format "{} + {} = {}" num1 num2 (adder num1 num2)))

@@ -2,6 +2,23 @@
   "path": "/contents/ide/ark/",
   "list": [
     {"name": "hello_world.template", "type": "f", "list": []},
-    {"name": "examples", "type": "d", "list": ["100_bottles_of_beer.template", "fibonacci.template"]}
+    {
+      "name": "examples",
+      "type": "d",
+      "list": [
+        "100_bottles_of_beer.template",
+        "fibonacci.template"
+      ]
+    },
+    {
+      "name": "learning",
+      "type": "d",
+      "list": [
+        "01-simple_function.template",
+        "02-function_with_return_val.template",
+        "03-lists.template",
+        "04-lists_recursive.template"
+      ]
+    }
   ]
 }

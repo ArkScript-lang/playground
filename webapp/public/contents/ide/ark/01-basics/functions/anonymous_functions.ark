@@ -1,9 +1,0 @@
-# here's a function that takes an anonymous function
-(let trigger_alarm (fun (alarm) {
-    (print "triggering alarm")
-    (alarm)
-    (print "alarm triggered")
-}))
-
-# anonymous functions don't take arguments
-(trigger_alarm '(print "BEEP BOOP"))
