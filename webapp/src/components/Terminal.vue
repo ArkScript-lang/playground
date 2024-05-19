@@ -628,7 +628,6 @@ export default {
       };
 
       ws.onclose = () => {
-        vm.term.write(`\n${this.$t("disconnected")}\n`);
         vm.ws = null;
         vm.connected = false;
         this.count = null;

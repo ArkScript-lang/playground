@@ -46,7 +46,7 @@ websocketServer.on('connection', (ws, req) => {
         'run',
         '--env',
         'LANG=C.UTF-8',
-        '-itq',
+        '-it',
         '--name',
         docker_name,
         '--rm',

@@ -45,7 +45,7 @@ export default {
       axios
         .get(path, {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8",
+            "Content-Type": "text/plain;charset=utf-8",
           },
         })
         .then((res) => {
