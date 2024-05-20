@@ -1002,54 +1002,56 @@ export default {
     });
     this.editor.focus();
 
-    const resizer = document.getElementById("resizer");
-    const topSide = resizer.previousElementSibling;
-    const bottomSide = resizer.nextElementSibling;
-
-    const mouseUpHandler = () => {
+    if (this.isBottomTerm()) {
       const resizer = document.getElementById("resizer");
-      resizer.style.removeProperty("cursor");
-      document.body.style.removeProperty("cursor");
+      const topSide = resizer.previousElementSibling;
+      const bottomSide = resizer.nextElementSibling;
 
-      topSide.style.removeProperty("user-select");
-      topSide.style.removeProperty("pointer-events");
-      bottomSide.style.removeProperty("user-select");
-      bottomSide.style.removeProperty("pointer-events");
+      const mouseUpHandler = () => {
+        const resizer = document.getElementById("resizer");
+        resizer.style.removeProperty("cursor");
+        document.body.style.removeProperty("cursor");
 
-      document.removeEventListener("mousemove", mouseMoveHandler);
-      document.removeEventListener("mouseup", mouseUpHandler);
-      this.fitSize();
-    };
-    const mouseMoveHandler = (e) => {
-      if (this.hasEmbeddedCode())
-        return;
+        topSide.style.removeProperty("user-select");
+        topSide.style.removeProperty("pointer-events");
+        bottomSide.style.removeProperty("user-select");
+        bottomSide.style.removeProperty("pointer-events");
 
-      const toolbar = document.getElementById("v-toolbar");
-      const fileTabs = document.getElementById("file-tabs");
-      const resizer = document.getElementById("resizer");
-      let dy = e.clientY - toolbar.clientHeight - fileTabs.clientHeight;
-      const monaco = document.getElementById("monaco");
+        document.removeEventListener("mousemove", mouseMoveHandler);
+        document.removeEventListener("mouseup", mouseUpHandler);
+        this.fitSize();
+      };
+      const mouseMoveHandler = (e) => {
+        if (this.hasEmbeddedCode())
+          return;
 
-      if (document.body.clientHeight * 0.8 < dy) {
-        dy = parseInt(document.body.clientHeight * 0.8);
-      }
+        const toolbar = document.getElementById("v-toolbar");
+        const fileTabs = document.getElementById("file-tabs");
+        const resizer = document.getElementById("resizer");
+        let dy = e.clientY - toolbar.clientHeight - fileTabs.clientHeight;
+        const monaco = document.getElementById("monaco");
 
-      monaco.style.height = `${dy}px`;
-      resizer.style.cursor = "row-resize";
-      document.body.style.cursor = "row-resize";
-      topSide.style.userSelect = "none";
-      topSide.style.pointerEvents = "none";
-      bottomSide.style.userSelect = "none";
-      bottomSide.style.pointerEvents = "none";
-      this.befHeight = monaco.style.height;
-    };
-    const mouseDownHandler = function () {
-      document.addEventListener("mousemove", mouseMoveHandler);
-      document.addEventListener("mouseup", mouseUpHandler);
-    };
+        if (document.body.clientHeight * 0.8 < dy) {
+          dy = parseInt(document.body.clientHeight * 0.8);
+        }
 
-    // Attach the handler
-    resizer.addEventListener("mousedown", mouseDownHandler);
+        monaco.style.height = `${dy}px`;
+        resizer.style.cursor = "row-resize";
+        document.body.style.cursor = "row-resize";
+        topSide.style.userSelect = "none";
+        topSide.style.pointerEvents = "none";
+        bottomSide.style.userSelect = "none";
+        bottomSide.style.pointerEvents = "none";
+        this.befHeight = monaco.style.height;
+      };
+      const mouseDownHandler = function () {
+        document.addEventListener("mousemove", mouseMoveHandler);
+        document.addEventListener("mouseup", mouseUpHandler);
+      };
+
+      // Attach the handler
+      resizer.addEventListener("mousedown", mouseDownHandler);
+    }
 
     window.onbeforeunload = () => {
       return "{{$t('terminate')}}";
