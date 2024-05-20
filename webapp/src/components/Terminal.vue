@@ -3,19 +3,20 @@
     <div id="div-editor" @drop="dropHandler" @dragover="dragOverHandler">
       <v-app-bar color="toolbar" id="v-toolbar" height="32px">
         <v-app-bar-nav-icon
-          :dark="dark"
-          @click="$emit('toggleMenu')"
+            :dark="dark"
+            @click="$emit('toggleMenu')"
+            v-if="!hasEmbeddedCode()"
         ></v-app-bar-nav-icon>
-        <v-tooltip bottom>
+        <v-tooltip bottom v-if="!hasEmbeddedCode()">
           <span>{{ $t("disconnect") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
-              text
-              x-small
-              @click="disconnect"
-              v-bind="attrs"
-              v-on="on"
-              :disabled="!connected"
+                text
+                x-small
+                @click="disconnect"
+                v-bind="attrs"
+                v-on="on"
+                :disabled="!connected"
             >
               <v-icon dense color="error">mdi-lan-disconnect</v-icon>
             </v-btn>
@@ -25,36 +26,36 @@
           <span>{{ $t("run") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
-              text
-              x-small
-              :disabled="connected"
-              @click="executeCheck()"
-              v-bind="attrs"
-              v-on="on"
+                text
+                x-small
+                :disabled="connected"
+                @click="executeCheck()"
+                v-bind="attrs"
+                v-on="on"
             >
               <v-icon dense color="green">mdi-play</v-icon>
             </v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip bottom>
+        <v-tooltip bottom v-if="!hasEmbeddedCode()">
           <span>{{ $t("commandPalette") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
-              text
-              color="yellow"
-              x-small
-              @click="
+                text
+                color="yellow"
+                x-small
+                @click="
                 editor.focus(),
                   editor.trigger('F1', 'editor.action.quickCommand')
               "
-              v-bind="attrs"
-              v-on="on"
+                v-bind="attrs"
+                v-on="on"
             >
               <v-icon dense>mdi-flash</v-icon>
             </v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip bottom>
+        <v-tooltip bottom v-if="!hasEmbeddedCode()">
           <span>{{ $t("import") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn text x-small @click="importFile()" v-bind="attrs" v-on="on">
@@ -62,7 +63,7 @@
             </v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip bottom>
+        <v-tooltip bottom v-if="!hasEmbeddedCode()">
           <span>{{ $t("export") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn text x-small @click="saveAs()" v-bind="attrs" v-on="on">
@@ -70,15 +71,15 @@
             </v-btn>
           </template>
         </v-tooltip>
-        <v-tooltip bottom>
+        <v-tooltip bottom v-if="!hasEmbeddedCode()">
           <span>{{ $t("github") }}</span>
           <template v-slot:activator="{ on, attrs }">
             <v-btn
-              text
-              x-small
-              @click="openSite('https://github.com/ArkScript-lang/Ark')"
-              v-bind="attrs"
-              v-on="on"
+                text
+                x-small
+                @click="openSite('https://github.com/ArkScript-lang/Ark')"
+                v-bind="attrs"
+                v-on="on"
             >
               <v-icon dense>mdi-github</v-icon>
             </v-btn>
@@ -86,58 +87,59 @@
         </v-tooltip>
       </v-app-bar>
       <v-slide-group
-        v-model="fileTabIndex"
-        id="file-tabs"
-        mandatory
-        show-arrows
-        @change="onChangeFileTab"
+          v-model="fileTabIndex"
+          id="file-tabs"
+          mandatory
+          show-arrows
+          @change="onChangeFileTab"
+          v-if="!hasEmbeddedCode() && fileTabs !== null"
       >
         <v-slide-item
-          v-for="(item, index) in fileTabs"
-          :key="index"
-          v-slot="{ active, toggle }"
-          height="24px"
+            v-for="(item, index) in fileTabs"
+            :key="index"
+            v-slot="{ active, toggle }"
+            height="24px"
         >
           <v-btn
-            class="text-truncate"
-            text
-            tile
-            small
-            :input-value="active"
-            active-class="indigo darken-4 white--text"
-            depressed
-            @click="toggle"
-            @contextmenu="toggle()"
-            style="text-transform: none !important"
+              class="text-truncate"
+              text
+              tile
+              small
+              :input-value="active"
+              active-class="indigo darken-4 white--text"
+              depressed
+              @click="toggle"
+              @contextmenu="toggle()"
+              style="text-transform: none !important"
           >
             <v-text-field
-              :disabled="!active"
-              :readonly="item.filename === defaultFilename"
-              :value="`${item.filename}`"
-              single-line
-              class="text-caption"
-              style="border-style: none"
-              @change="renameTab"
-              @blur="renaming = false"
-              v-if="renaming && active && item.filename !== defaultFilename"
-              autofocus
+                :disabled="!active"
+                :readonly="item.filename === defaultFilename"
+                :value="`${item.filename}`"
+                single-line
+                class="text-caption"
+                style="border-style: none"
+                @change="renameTab"
+                @blur="renaming = false"
+                v-if="renaming && active && item.filename !== defaultFilename"
+                autofocus
             ></v-text-field>
             <span
-              class="d-inline-block text-truncate"
-              style="max-width: 120px"
-              v-on:dblclick="renaming = true"
-              v-else
+                class="d-inline-block text-truncate"
+                style="max-width: 120px"
+                v-on:dblclick="renaming = true"
+                v-else
             >
               {{ `${item.filename}.${languageConf.ext}` }}
             </span>
 
-            <v-spacer> </v-spacer>
+            <v-spacer></v-spacer>
             <v-btn icon text x-small>
               <v-icon
-                color="pink lighten-4"
-                dense
-                v-text="'mdi-close'"
-                @click="closeTab"
+                  color="pink lighten-4"
+                  dense
+                  v-text="'mdi-close'"
+                  @click="closeTab"
               ></v-icon>
             </v-btn>
           </v-btn>
@@ -153,20 +155,108 @@
           </v-tooltip>
         </div>
       </v-slide-group>
-      <div id="monaco"></div>
+      <div v-if="isBottomTerm()">
+        <div id="monaco"></div>
+      </div>
+      <div id="editor-terminal" v-if="!isBottomTerm()">
+        <div id="monaco"></div>
+        <div>
+          <v-snackbar v-model="snackbar" :timeout="4000">
+            {{ snackbar_message }}
+            <template v-slot:action="{ attrs }">
+              <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
+                {{ $t("close") }}
+              </v-btn>
+            </template>
+          </v-snackbar>
+          <v-toolbar fixed color="toolbar" id="v-footer" height="24px">
+            <v-tabs
+                show-arrows
+                @change="this.fitSize"
+                v-model="terminalTab"
+                height="24px"
+            >
+              <v-tab key="0" href="#tab-0"
+              >{{
+                  $t("terminal")
+                }}{{ connected && count ? ` - ${count}` : "" }}
+              </v-tab
+              >
+            </v-tabs>
+            <v-spacer></v-spacer>
+            <v-layout justify-end="true">
+              <v-tooltip bottom>
+                <span>{{ $t("decreasePanel") }}</span>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                      icon
+                      small
+                      @click="resizeTermScreen(true)"
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    <v-icon dense>mdi-chevron-down</v-icon>
+                  </v-btn>
+                </template>
+              </v-tooltip>
+              <v-tooltip bottom>
+                <span>{{ $t("increasePanel") }}</span>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                      icon
+                      small
+                      @click="resizeTermScreen(false)"
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    <v-icon dense>mdi-chevron-up</v-icon>
+                  </v-btn>
+                </template>
+              </v-tooltip>
+              <v-tooltip bottom>
+            <span>{{
+                fullTerminal ? $t("restorePanel") : $t("maximizePanel")
+              }}</span>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn
+                      icon
+                      small
+                      @click="toggleTermScreen"
+                      v-bind="attrs"
+                      v-on="on"
+                  >
+                    <v-icon dense v-if="fullTerminal">mdi-fullscreen-exit</v-icon>
+                    <v-icon dense v-else>mdi-fullscreen</v-icon>
+                  </v-btn
+                  >
+                </template>
+              </v-tooltip>
+            </v-layout>
+          </v-toolbar>
+          <v-tabs-items v-model="terminalTab" color="black" id="terminal-tab">
+            <v-tab-item key="0" value="tab-0">
+              <div id="con-terminal" class="con-bottom">
+                <div id="terminal"></div>
+              </div>
+            </v-tab-item>
+          </v-tabs-items>
+        </div>
+      </div>
     </div>
-    <div class="resizer" id="resizer"></div>
-    <div>
+    <div class="resizer" id="resizer" v-if="isBottomTerm()"></div>
+    <div v-if="isBottomTerm()">
       <v-toolbar fixed color="toolbar" id="v-footer" height="24px">
         <v-tabs
-          show-arrows
-          @change="this.fitSize"
-          v-model="terminalTab"
-          height="24px"
+            show-arrows
+            @change="this.fitSize"
+            v-model="terminalTab"
+            height="24px"
         >
           <v-tab key="0" href="#tab-0"
-            >{{ $t("terminal")
-            }}{{ connected && count ? ` - ${count}` : "" }}</v-tab
+          >{{
+              $t("terminal")
+            }}{{ connected && count ? ` - ${count}` : "" }}
+          </v-tab
           >
         </v-tabs>
         <v-spacer></v-spacer>
@@ -175,11 +265,11 @@
             <span>{{ $t("decreasePanel") }}</span>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                icon
-                small
-                @click="resizeTermScreen(true)"
-                v-bind="attrs"
-                v-on="on"
+                  icon
+                  small
+                  @click="resizeTermScreen(true)"
+                  v-bind="attrs"
+                  v-on="on"
               >
                 <v-icon dense>mdi-chevron-down</v-icon>
               </v-btn>
@@ -189,11 +279,11 @@
             <span>{{ $t("increasePanel") }}</span>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                icon
-                small
-                @click="resizeTermScreen(false)"
-                v-bind="attrs"
-                v-on="on"
+                  icon
+                  small
+                  @click="resizeTermScreen(false)"
+                  v-bind="attrs"
+                  v-on="on"
               >
                 <v-icon dense>mdi-chevron-up</v-icon>
               </v-btn>
@@ -201,18 +291,19 @@
           </v-tooltip>
           <v-tooltip bottom>
             <span>{{
-              fullTerminal ? $t("restorePanel") : $t("maximizePanel")
-            }}</span>
+                fullTerminal ? $t("restorePanel") : $t("maximizePanel")
+              }}</span>
             <template v-slot:activator="{ on, attrs }">
               <v-btn
-                icon
-                small
-                @click="toggleTermScreen"
-                v-bind="attrs"
-                v-on="on"
+                  icon
+                  small
+                  @click="toggleTermScreen"
+                  v-bind="attrs"
+                  v-on="on"
               >
                 <v-icon dense v-if="fullTerminal">mdi-fullscreen-exit</v-icon>
-                <v-icon dense v-else>mdi-fullscreen</v-icon></v-btn
+                <v-icon dense v-else>mdi-fullscreen</v-icon>
+              </v-btn
               >
             </template>
           </v-tooltip>
@@ -226,7 +317,7 @@
         </v-tab-item>
       </v-tabs-items>
     </div>
-    <v-snackbar v-model="snackbar" :timeout="4000">
+    <v-snackbar v-model="snackbar" :timeout="4000" v-if="isBottomTerm()">
       {{ snackbar_message }}
       <template v-slot:action="{ attrs }">
         <v-btn color="blue" text v-bind="attrs" @click="snackbar = false">
@@ -241,10 +332,10 @@
 <style src='../styles/vs2015.css'></style>
 <script>
 import * as monaco from "monaco-editor";
-import { languageConf } from './arkscript';
+import {languageConf} from './arkscript';
 
-import { Terminal } from "xterm";
-import { FitAddon } from "xterm-addon-fit";
+import {Terminal} from "xterm";
+import {FitAddon} from "xterm-addon-fit";
 
 export default {
   name: "Terminal",
@@ -272,13 +363,14 @@ export default {
     snackbar_message: "",
     fullTerminal: false,
     contents: "",
-    options: { tabSize: 4, dark: true },
+    options: {tabSize: 4, dark: true},
     fitAddon: new FitAddon(),
     connected: false,
     count: null,
     ws: null,
     term: null,
     editor: null,
+    code: null,
   }),
   watch: {
     dark: {
@@ -289,22 +381,15 @@ export default {
     },
   },
   methods: {
+    isBottomTerm: function () {
+      return this.$route.query.termRight === undefined;
+    },
+    hasEmbeddedCode: function () {
+      return this.code !== undefined && this.code !== null;
+    },
     showSnackbar: function (msg) {
       this.snackbar_message = msg;
       this.snackbar = true;
-    },
-    contextMenuClick: function (e) {
-      switch (e) {
-        case "close":
-          this.closeTab();
-          break;
-        case "new":
-          this.newTab();
-          break;
-        case "rename":
-          this.renaming = true;
-          break;
-      }
     },
     newTab: function (name) {
       let index = 999;
@@ -319,14 +404,17 @@ export default {
         saved: true,
         value: "",
         position: null,
-        scrollPosition: { scrollLeft: 0, scrollTop: 0 },
+        scrollPosition: {scrollLeft: 0, scrollTop: 0},
       });
       this.onChangeFileTab(this.fileTabs.length - 1);
     },
     renameTab: function (e) {
+      if (this.fileTabs === null)
+        return;
+
       let filename = e.replace(
-        `.${languageConf.ext}`,
-        ""
+          `.${languageConf.ext}`,
+          ""
       );
 
       if (this.fileTabs.filter((e) => e.filename === filename)[0]) {
@@ -344,7 +432,10 @@ export default {
       this.renaming = false;
     },
     closeTab: function () {
-      const tab = this.fileTabIndex === this.fileTabs.length-1 ? this.fileTabs.length-1 : this.fileTabIndex
+      if (this.fileTabs === null)
+        return;
+
+      const tab = this.fileTabIndex === this.fileTabs.length - 1 ? this.fileTabs.length - 1 : this.fileTabIndex
 
       this.befFileTab = null
       if (this.fileTabs.length === 1) {
@@ -356,6 +447,8 @@ export default {
       this.onChangeFileTab(tab)
     },
     onChangeFileTab: function (tab) {
+      if (this.fileTabs === null)
+        return;
       this.renaming = false;
 
       if (!this.editor || !this.fileTabs[tab]) return;
@@ -379,21 +472,11 @@ export default {
       this.editor.setValue(this.fileTabs[tab].value);
       this.editor.getModel().setEOL(0);
       this.fileTabs[tab].position &&
-        this.editor.setPosition(this.fileTabs[tab].position);
+      this.editor.setPosition(this.fileTabs[tab].position);
       this.fileTabs[tab].scrollPosition &&
-        this.editor.setScrollPosition(this.fileTabs[tab].scrollPosition);
+      this.editor.setScrollPosition(this.fileTabs[tab].scrollPosition);
       this.befFileTab = tabName;
       this.editor.focus();
-    },
-    copyToClipboard: function (txt) {
-      const dummy = document.createElement("input");
-      const text = txt;
-
-      document.body.appendChild(dummy);
-      dummy.value = text;
-      dummy.select();
-      document.execCommand("copy");
-      document.body.removeChild(dummy);
     },
     setEditorValue(value) {
       this.editor.setValue(value);
@@ -423,21 +506,24 @@ export default {
           reject(e);
         };
         reader.filename = file.name.replace(
-          `.${languageConf.ext}`,
-          ""
+            `.${languageConf.ext}`,
+            ""
         );
         reader.readAsText(file);
       });
     },
     addTab: function (filename, value) {
+      if (this.fileTabs === null)
+        return;
+
       const ext = `.${languageConf.ext}`;
       if (filename.endsWith(ext)) filename = filename.replace(ext, "");
 
       if (this.fileTabs.filter((e) => e.filename === filename)[0]) {
         filename !== this.defaultFilename &&
-          this.showSnackbar(
+        this.showSnackbar(
             `Unable to load ${filename} because it already exists`
-          );
+        );
         return;
       }
 
@@ -446,7 +532,7 @@ export default {
         saved: true,
         value: value,
         position: null,
-        scrollPosition: { scrollLeft: 0, scrollTop: 0 },
+        scrollPosition: {scrollLeft: 0, scrollTop: 0},
       });
 
       this.onChangeFileTab(this.fileTabs.length - 1);
@@ -473,6 +559,9 @@ export default {
       ev.preventDefault();
     },
     toggleTermScreen: function () {
+      if (this.isBottomTerm())
+        return;
+
       const monaco = document.getElementById("monaco");
 
       this.fullTerminal = !this.fullTerminal;
@@ -487,6 +576,9 @@ export default {
       window.open(site, "_blank");
     },
     resizeTermScreen: function (isUp) {
+      if (this.isBottomTerm())
+        return;
+
       const monaco = document.getElementById("monaco");
       if (!monaco) return;
       let dy = monaco.clientHeight;
@@ -505,7 +597,7 @@ export default {
 
       const regexp = new RegExp(errorRegEx, "g");
       const ansi =
-        "[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]";
+          "[\u001b\u009b][[()#;?]*(?:[0-9]{1,4}(?:;[0-9]{0,4})*)?[0-9A-ORZcf-nqry=><]";
       const ansiRegEx = new RegExp(ansi, "g");
       let match = null;
 
@@ -518,8 +610,8 @@ export default {
             options: {
               isWholeLine: true,
               className: this.$vuetify.theme.dark
-                ? "decorationErrorLineDark"
-                : "decorationErrorLine",
+                  ? "decorationErrorLineDark"
+                  : "decorationErrorLine",
               glyphMarginClassName: "decorationError",
               hoverMessage: {
                 value: "```json\n" + matched.replace(ansiRegEx, "") + "\n```",
@@ -527,16 +619,15 @@ export default {
               glyphMarginHoverMessage: {
                 value: "```json\n" + matched.replace(ansiRegEx, "") + "\n```",
               },
-              minimap: { position: 1 },
             },
           });
 
           this.befDecorations = this.editor.deltaDecorations(
-            this.befDecorations,
-            this.decorations
+              this.befDecorations,
+              this.decorations
           );
           this.editor.revealLineInCenter(row);
-          this.editor.setPosition({ column: 0, lineNumber: row });
+          this.editor.setPosition({column: 0, lineNumber: row});
         }
       }
     },
@@ -616,8 +707,8 @@ export default {
     execute: function (command) {
       this.decorations = [];
       this.befDecorations = this.editor.deltaDecorations(
-        this.befDecorations,
-        []
+          this.befDecorations,
+          []
       );
 
       if (!this.connected) {
@@ -638,6 +729,9 @@ export default {
       } else this.term.write(`${this.t("connectFirst")}.\r\n`);
     },
     fitSize: function () {
+      if (this.hasEmbeddedCode())
+        return;
+
       const toolbar = document.getElementById("v-toolbar");
       const fileTabs = document.getElementById("file-tabs");
       const footer = document.getElementById("v-footer");
@@ -647,19 +741,19 @@ export default {
       const con_image = document.getElementById("con-html");
       const resizer = document.getElementById("resizer");
       const padding =
-        con_terminal.clientHeight -
-        terminal.clientHeight +
-        resizer.clientHeight;
+          con_terminal.clientHeight -
+          terminal.clientHeight +
+          resizer.clientHeight;
       const height =
-        window.innerHeight -
-        toolbar.clientHeight -
-        fileTabs.clientHeight -
-        footer.clientHeight;
+          window.innerHeight -
+          toolbar.clientHeight -
+          fileTabs.clientHeight -
+          footer.clientHeight;
       let monacoHeight =
-        (!this.fullTerminal && monaco.style.height === "0px") ||
-        monaco.style.height === ""
-          ? parseInt(window.innerHeight * 0.6)
-          : monaco.clientHeight;
+          (!this.fullTerminal && monaco.style.height === "0px") ||
+          monaco.style.height === ""
+              ? parseInt(window.innerHeight * 0.6)
+              : monaco.clientHeight;
 
       if (window.innerHeight * 0.7 < monacoHeight) {
         monacoHeight = parseInt(window.innerHeight * 0.7);
@@ -670,12 +764,12 @@ export default {
 
       monaco.style.height = this.fullTerminal ? "0px" : `${monacoHeight}px`;
       terminal.style.height = this.fullTerminal
-        ? `${height - padding}px`
-        : `${height - monacoHeight - padding}px`;
+          ? `${height - padding}px`
+          : `${height - monacoHeight - padding}px`;
       if (con_image)
         con_image.style.height = this.fullTerminal
-          ? `${height}px`
-          : `${height - monacoHeight - resizer.clientHeight}px`;
+            ? `${height}px`
+            : `${height - monacoHeight - resizer.clientHeight}px`;
       this.editor.layout();
 
       try {
@@ -689,12 +783,12 @@ export default {
 
       const pom = document.createElement("a");
       pom.setAttribute(
-        "href",
-        "data:text/plain;charset=utf-8," + encodeURIComponent(text)
+          "href",
+          "data:text/plain;charset=utf-8," + encodeURIComponent(text)
       );
       pom.setAttribute(
-        "download",
-        `${this.filename}.${languageConf.ext}`
+          "download",
+          `${this.filename}.${languageConf.ext}`
       );
       pom.style.display = "none";
       document.body.appendChild(pom);
@@ -707,8 +801,8 @@ export default {
   mounted: function () {
     this.$i18n.locale = "en";
     this.tabMenu = [
-      { id: "close", icon: "mdi-close", title: this.$t("closeTab") },
-      { id: "new", icon: "mdi-plus", title: this.$t("newTab") },
+      {id: "close", icon: "mdi-close", title: this.$t("closeTab")},
+      {id: "new", icon: "mdi-plus", title: this.$t("newTab")},
       {
         id: "rename",
         icon: "mdi-square-edit-outline",
@@ -716,6 +810,7 @@ export default {
       },
     ];
 
+    this.code = this.$route.query.code;
     const terminalContainer = document.getElementById("terminal");
 
     this.term = new Terminal({
@@ -749,7 +844,13 @@ export default {
 
     window.addEventListener("resize", this.fitSize);
     const divMonaco = document.getElementById("monaco");
-    divMonaco.style.height = `${parseInt(window.innerHeight * 0.6)}px`;
+    if (this.isBottomTerm())
+      divMonaco.style.height = `${parseInt(window.innerHeight * 0.6)}px`;
+    else {
+      document.getElementById("div-client").style.height = "100vh";
+      document.getElementById("div-editor").style.height = "100vh";
+      document.getElementById("con-terminal").style.height = "100vh";
+    }
 
     this.editor = monaco.editor.create(divMonaco, {
       value: "",
@@ -762,15 +863,22 @@ export default {
         keywords: true,
       },
       lineNumbers: "on",
-      automaticLayout: true,
       roundedSelection: false,
       scrollBeyondLastLine: true,
       readOnly: false,
       theme: "vs-dark",
       glyphMargin: true,
+      minimap: {
+        enabled: this.isBottomTerm(),
+      },
     });
 
-    this.newTab("main");
+    if (this.hasEmbeddedCode()) {
+      this.code = atob(this.code);
+      this.setEditorValue(this.code);
+    } else {
+      this.newTab("main");
+    }
 
     this.editor.addAction({
       id: "execute",
@@ -780,7 +888,6 @@ export default {
         (!this.connected) && this.executeCheck();
       },
     });
-
     this.editor.addAction({
       id: "connect",
       label: this.$t("connect"),
@@ -788,7 +895,6 @@ export default {
         this.connect();
       },
     });
-
     this.editor.addAction({
       id: "disconnect",
       label: this.$t("disconnect"),
@@ -796,20 +902,18 @@ export default {
         this.disconnect();
       },
     });
-
     this.editor.addAction({
       id: "columnMode",
       label: this.$t("columnMode"),
       keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyC],
       run: () => {
         const mode = this.editor.getOption(
-          monaco.editor.EditorOption.columnSelection
+            monaco.editor.EditorOption.columnSelection
         );
-        this.editor.updateOptions({ columnSelection: !mode });
+        this.editor.updateOptions({columnSelection: !mode});
         this.editor.setSelection(this.editor.getSelection());
       },
     });
-
     this.editor.addAction({
       id: "import",
       label: this.$t("import"),
@@ -818,7 +922,6 @@ export default {
         this.importFile();
       },
     });
-
     this.editor.addAction({
       id: "export",
       label: this.$t("export"),
@@ -827,7 +930,6 @@ export default {
         this.saveAs();
       },
     });
-
     this.editor.addAction({
       id: "quickCommand",
       label: this.$t("commandPalette"),
@@ -839,7 +941,6 @@ export default {
         this.editor.trigger("F1", "editor.action.quickCommand");
       },
     });
-
     this.editor.addAction({
       id: "newTab",
       label: this.$t("newTab"),
@@ -851,7 +952,6 @@ export default {
         this.newTab();
       },
     });
-
     this.editor.addAction({
       id: "closeTab",
       label: this.$t("closeTab"),
@@ -859,9 +959,10 @@ export default {
         monaco.KeyMod.CtrlCmd | monaco.KeyCode.F4,
         monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.F4,
       ],
-      run: () => { this.closeTab() },
+      run: () => {
+        this.closeTab()
+      },
     });
-
     this.editor.addAction({
       id: "prevTab",
       label: this.$t("prevTab"),
@@ -871,13 +972,12 @@ export default {
       ],
       run: () => {
         this.fileTabIndex =
-          this.fileTabIndex === 0
-            ? this.fileTabs.length - 1
-            : this.fileTabIndex - 1;
+            this.fileTabIndex === 0
+                ? this.fileTabs.length - 1
+                : this.fileTabIndex - 1;
         this.onChangeFileTab(this.fileTabIndex);
       },
     });
-
     this.editor.addAction({
       id: "nextTab",
       label: this.$t("nextTab"),
@@ -887,13 +987,12 @@ export default {
       ],
       run: () => {
         this.fileTabIndex =
-          this.fileTabs.length === this.fileTabIndex + 1
-            ? 0
-            : this.fileTabIndex + 1;
+            this.fileTabs.length === this.fileTabIndex + 1
+                ? 0
+                : this.fileTabIndex + 1;
         this.onChangeFileTab(this.fileTabIndex);
       },
     });
-
     this.editor.addAction({
       id: "toggleTheme",
       label: this.$t("toggleTheme"),
@@ -901,7 +1000,6 @@ export default {
         this.$vuetify.theme.dark = !this.$vuetify.theme.dark;
       },
     });
-
     this.editor.focus();
 
     const resizer = document.getElementById("resizer");
@@ -923,6 +1021,9 @@ export default {
       this.fitSize();
     };
     const mouseMoveHandler = (e) => {
+      if (this.hasEmbeddedCode())
+        return;
+
       const toolbar = document.getElementById("v-toolbar");
       const fileTabs = document.getElementById("file-tabs");
       const resizer = document.getElementById("resizer");
@@ -962,14 +1063,27 @@ export default {
 </script>
 
 <style>
+#editor-terminal {
+  display: flex;
+  height: calc(100vh - 32px);
+}
+
+#terminal-tab {
+  height: calc(100vh - 32px - 24px);
+}
+
+#monaco {
+  flex: 1 0 50%;
+}
+
+#editor-terminal > div:nth-child(2) {
+  flex: 1 0 40%;
+}
+
 .client {
   width: 100%;
   top: 10px;
   bottom: 10px;
-}
-.parent {
-  width: 42px;
-  height: 42px;
 }
 
 .con-bottom {
@@ -981,50 +1095,42 @@ export default {
   overflow: auto;
   max-height: 100%;
 }
-.con-html {
-  width: 100%;
-  top: 10px;
-  bottom: 10px;
-  padding: 10px;
-  background-color: grey;
-  overflow: auto;
-  max-height: 100%;
-}
+
 .con-html img {
   max-height: 100%;
 }
-.label {
-  display: inline-block;
-  width: 100px;
-  margin-right: 20px;
-  user-select: none;
-  text-align: left;
-}
+
 .resizer {
   height: 3px;
   cursor: row-resize;
   background-color: dimgray;
 }
+
 .resizer:hover {
   background-color: #0d47a1;
 }
+
 ::-webkit-scrollbar {
   width: 8px;
 }
+
 ::-webkit-scrollbar-button {
   width: 8px;
   height: 5px;
 }
+
 ::-webkit-scrollbar-track {
   background: #1e1e1e;
   border: thin solid #303030;
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #999;
   border: thin solid gray;
   border-radius: 10px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: #7d7d7d;
 }

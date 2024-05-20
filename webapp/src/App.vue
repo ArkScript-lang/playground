@@ -1,15 +1,14 @@
-<script src="../../app.js"></script>
 <template>
   <v-app>
     <v-main>
       <left-menu :menu="menu" ref="leftMenu" @click="showContents"></left-menu>
       <terminal
-        :editorValue="editorValue"
-        ref="terminal"
-        @navigate="navigate"
-        @toggleMenu="toggleMenu"
-        @onTerminalCount="onTerminalCount"
-        :dark="$vuetify.theme.dark"
+          :editorValue="editorValue"
+          ref="terminal"
+          @navigate="navigate"
+          @toggleMenu="toggleMenu"
+          @onTerminalCount="onTerminalCount"
+          :dark="$vuetify.theme.dark"
       >
       </terminal>
     </v-main>
@@ -19,6 +18,7 @@
 <style src='./styles/github-markdown.css'></style>
 <style src='./styles/xterm.css'></style>
 <style src='./styles/vs2015.css'></style>
+
 <script>
 import LeftMenu from "./components/LeftMenu";
 import Terminal from "./components/Terminal";
@@ -43,22 +43,22 @@ export default {
     },
     showContents: function (path) {
       axios
-        .get(path, {
-          headers: {
-            "Content-Type": "text/plain;charset=utf-8",
-          },
-        })
-        .then((res) => {
-          this.$refs.leftMenu.selected = path;
-          if (path.endsWith(".template")) {
-            this.$refs.terminal.setEditorValue(res.data);
-          } else {
-            this.contents = res.data;
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+          .get(path, {
+            headers: {
+              "Content-Type": "text/plain;charset=utf-8",
+            },
+          })
+          .then((res) => {
+            this.$refs.leftMenu.selected = path;
+            if (path.endsWith(".template")) {
+              this.$refs.terminal.setEditorValue(res.data);
+            } else {
+              this.contents = res.data;
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
     },
     onTerminalCount: function (count) {
       this.termCount = count;
@@ -74,8 +74,8 @@ export default {
       html.style.overflowY = "hidden";
 
       if (
-        !window.location.href.endsWith(".template") &&
-        !window.location.href.split("/").pop().startsWith("source:")
+          !window.location.href.endsWith(".template") &&
+          !window.location.href.split("/").pop().startsWith("source:")
       ) {
         template = "hello_world.template";
       }
@@ -85,13 +85,16 @@ export default {
   mounted() {
     this.$i18n.locale = "en";
     const path = this.$route.params.app_path;
-
-    this.menu = require('./ark_ide.json');
-
-    if (path && path.endsWith(".template")) {
-        this.navigate(path.replace("ide/ark/", ""));
+    if (this.$route.query.code !== undefined) {
+      this.$refs.leftMenu.visible = false;
     } else {
-      this.navigate("hello_world.template");
+      this.menu = require('./ark_ide.json');
+
+      if (path && path.endsWith(".template")) {
+        this.navigate(path.replace("ide/ark/", ""));
+      } else {
+        this.navigate("hello_world.template");
+      }
     }
   },
 };
