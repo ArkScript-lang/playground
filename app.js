@@ -1,3 +1,10 @@
+if (process.getuid() === 0 && process.getgid() === 0) {
+    // running as root
+    console.error("app.js seems to be running as root, which is a major security concern. Aborting.");
+    process.exit(1);
+}
+
+
 const express = require('express');
 const pty = require('node-pty');
 const fs = require('fs');
@@ -72,6 +79,11 @@ websocketServer.on('connection', (ws, req) => {
         'arkscript/harden',
     ], {
         name: 'xterm-color',
+        env: {
+            'SHELL': '/bin/sh',
+            'PATH': '/opt/homebrew/bin:/opt/homebrew/sbin:/usr/local/bin:/usr/bin',
+        },
+        cwd: "/tmp/playground/",
     });
     console.log('forking docker: ', docker_name, child.pid);
     dockerCount++;
