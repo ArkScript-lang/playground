@@ -34,6 +34,11 @@ setInterval(function ping() {
     }
 }, 5000);
 
+function log(state, ...args) {
+    const date = new Date().toUTCString();
+    console.log(`[${date}] - ${state} -`, args.join(" ; "));
+}
+
 let dockerCount = 0;
 let docker_seq = 0;
 
@@ -44,7 +49,7 @@ websocketServer.on('connection', (ws, req) => {
 
     const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
     const lang = req.headers["accept-language"];
-    console.log(new Date().toString(), 'connected...', ip, docker_name, lang);
+    log('Connected', `ip: ${ip}`, `docker: ${docker_name}`, `lang: ${lang}`);
 
     ws.hasShell = false;
 
@@ -85,7 +90,7 @@ websocketServer.on('connection', (ws, req) => {
         },
         cwd: "/tmp/playground/",
     });
-    console.log('forking docker: ', docker_name, child.pid);
+    log('Forking', `docker: ${docker_name}`, `pid: ${child.pid}`);
     dockerCount++;
 
     child.onData((data) => {
@@ -98,7 +103,7 @@ websocketServer.on('connection', (ws, req) => {
     child.onExit((code) => {
         ws.close();
         dockerCount--;
-        console.log('child closed', docker_name, child.pid, code);
+        log('Pty closed', `ip: ${ip}`, `docker: ${docker_name}`, `pid: ${child.pid}`, `code: ${code.exitCode}`, `signal: ${code.signal}`);
     });
 
     const isAuthorizedChar = (char) => {
@@ -146,11 +151,11 @@ websocketServer.on('connection', (ws, req) => {
     })
     ws.on('close', (e) => {
         spawn('docker', ['kill', docker_name]).on('close', () => {
-            console.log('socket closed...', new Date().toString(), docker_name, child.pid, e);
+            log('Closed', `ip: ${ip}`, `docker: ${docker_name}`, `pid: ${child.pid}`, `event: ${e}`);
         });
     });
     ws.on('error', (err) => {
-        console.log('error occurred', err);
+        log('WS error', `ip: ${ip}`, err);
     });
     ws.on('pong', () => {
         ws.isAlive = true;
