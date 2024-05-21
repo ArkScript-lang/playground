@@ -1075,11 +1075,11 @@ export default {
 }
 
 #monaco {
-  flex: 1 0 50%;
+  flex: 1 0 60%;
 }
 
 #editor-terminal > div:nth-child(2) {
-  flex: 1 0 40%;
+  flex: 1 0 35%;
 }
 
 .client {

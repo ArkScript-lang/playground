@@ -53,7 +53,9 @@ websocketServer.on('connection', (ws, req) => {
 
     ws.hasShell = false;
 
-    const child = pty.spawn('docker', [
+    const child = pty.spawn('timeout', [
+        '20',  // 20 seconds timeout before killing container
+        'docker',
         'run',
         '--env',
         'LANG=C.UTF-8',
@@ -65,7 +67,7 @@ websocketServer.on('connection', (ws, req) => {
         '--volume=/tmp/playground:/tmp',
         '--memory=16M',
         '--pids-limit=50',
-        '--stop-timeout=30',  // 30 seconds before shutoff
+        '--stop-timeout=1',  // 1 second before docker send sigkill
         '--read-only',
         '--cpu-quota=20000',  // 20% of cpu
         '--cap-drop=CHOWN',
