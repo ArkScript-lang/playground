@@ -814,6 +814,7 @@ export default {
     const terminalContainer = document.getElementById("terminal");
 
     this.term = new Terminal({
+      fontSize: 13,
       cursorBlink: true,
       rows: 15,
       theme: {
@@ -862,6 +863,8 @@ export default {
         strings: false,
         keywords: true,
       },
+      automaticLayout: true,
+      wordWrap: this.isBottomTerm() ? "off" : "on",
       lineNumbers: "on",
       roundedSelection: false,
       scrollBeyondLastLine: true,
