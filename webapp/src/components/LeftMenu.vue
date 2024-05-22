@@ -109,7 +109,7 @@ export default {
   created() {
     const path = this.$route.params.app_path;
 
-    if (path) {
+    if (path && this.$route.query.code === undefined) {
       const contents = path.split("/")[0];
       if (contents) {
         this.selected = `/contents/${path}`;

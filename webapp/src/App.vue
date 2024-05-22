@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <left-menu :menu="menu" ref="leftMenu" @click="showContents"></left-menu>
+      <left-menu :menu="menu" ref="leftMenu" v-if="!hasEmbeddedCode()" @click="showContents"></left-menu>
       <terminal
           :editorValue="editorValue"
           ref="terminal"
@@ -38,6 +38,9 @@ export default {
     termCount: null,
   }),
   methods: {
+    hasEmbeddedCode: function() {
+      return this.$route.query.code !== undefined;
+    },
     toggleMenu: function () {
       this.$refs.leftMenu.visible = !this.$refs.leftMenu.visible;
     },
@@ -85,7 +88,7 @@ export default {
   mounted() {
     this.$i18n.locale = "en";
     const path = this.$route.params.app_path;
-    if (this.$route.query.code !== undefined) {
+    if (this.hasEmbeddedCode()) {
       this.$refs.leftMenu.visible = false;
     } else {
       this.menu = require('./ark_ide.json');
