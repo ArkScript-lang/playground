@@ -877,7 +877,7 @@ export default {
     });
 
     if (this.hasEmbeddedCode()) {
-      this.code = atob(this.code);
+      this.code = atob(this.code.replace(" ", "+"));
       this.setEditorValue(this.code);
     } else {
       this.newTab("main");

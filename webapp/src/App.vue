@@ -42,7 +42,8 @@ export default {
       return this.$route.query.code !== undefined;
     },
     toggleMenu: function () {
-      this.$refs.leftMenu.visible = !this.$refs.leftMenu.visible;
+      if (this.$refs.leftMenu !== undefined)
+        this.$refs.leftMenu.visible = !this.$refs.leftMenu.visible;
     },
     showContents: function (path) {
       axios
@@ -52,7 +53,8 @@ export default {
             },
           })
           .then((res) => {
-            this.$refs.leftMenu.selected = path;
+            if (this.$refs.leftMenu !== undefined)
+              this.$refs.leftMenu.selected = path;
             if (path.endsWith(".template")) {
               this.$refs.terminal.setEditorValue(res.data);
             } else {
@@ -89,7 +91,8 @@ export default {
     this.$i18n.locale = "en";
     const path = this.$route.params.app_path;
     if (this.hasEmbeddedCode()) {
-      this.$refs.leftMenu.visible = false;
+      if (this.$refs.leftMenu !== undefined)
+        this.$refs.leftMenu.visible = false;
     } else {
       this.menu = require('./ark_ide.json');
 
