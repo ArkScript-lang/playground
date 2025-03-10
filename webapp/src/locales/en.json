@@ -27,7 +27,6 @@
   "disconnected": "Disconnected ⚡",
   "connectFirst": "Server is not connected.",
   "terminate": "If you leave before saving, your changes will be lost.",
-  "banner": "Tip: press 'F1' for command palette",
   "fileExists": "Already filename exists",
   "incorrectFilename": "Incorrect filename",
   "download": "download"

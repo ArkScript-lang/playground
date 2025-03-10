@@ -841,8 +841,6 @@ export default {
       }
     });
 
-    this.term.writeln(this.$t("banner"));
-
     window.addEventListener("resize", this.fitSize);
     const divMonaco = document.getElementById("monaco");
     if (this.isBottomTerm())
