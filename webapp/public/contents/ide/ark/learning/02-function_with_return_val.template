@@ -7,4 +7,4 @@
 (let num2 5)
 
 # and use them with our adder function to get the sum
-(print (str:format "{} + {} = {}" num1 num2 (adder num1 num2)))
+(print (string:format "{} + {} = {}" num1 num2 (adder num1 num2)))
