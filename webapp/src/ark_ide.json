@@ -7,7 +7,9 @@
       "type": "d",
       "list": [
         "100_bottles_of_beer.template",
-        "fibonacci.template"
+        "fibonacci.template",
+        "factorial.template",
+        "macros.template"
       ]
     },
     {
@@ -17,7 +19,8 @@
         "01-simple_function.template",
         "02-function_with_return_val.template",
         "03-lists.template",
-        "04-lists_recursive.template"
+        "04-lists_recursive.template",
+        "05-closures.template"
       ]
     }
   ]
