@@ -54,7 +54,7 @@ websocketServer.on('connection', (ws, req) => {
     ws.hasShell = false;
 
     const child = pty.spawn('timeout', [
-        '-k', '20s',  // 20 seconds timeout before killing container
+        '-s', '9', '20s',  // 20 seconds timeout before killing container
         'docker',
         'run',
         '--env',
